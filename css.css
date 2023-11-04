@@ -1,0 +1,110 @@
+:root{
+  --color-dark: green;
+  --color-light: white;
+}
+
+table{
+  border-collapse: collapse;
+}
+tr.even td:nth-child(2n){
+  background-color: var(--color-dark);
+}
+tr.even td:nth-child(odd){
+  background-color: var(--color-light);
+}
+tr.odd td:nth-child(odd){
+  background-color: var(--color-dark);
+}
+tr.odd td:nth-child(2n){
+  background-color: var(--color-light);
+}
+td{
+  width: 5rem;
+  height: 5rem;
+  border: 1px solid black;
+  position: relative;
+}
+.wpawn{
+  background-image: url(./img/wpawn.png);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.wrook{
+  background-image: url(./img/wrook.png);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.wbishop{
+  background-image: url(./img/wbishop.png);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.wknight{
+  background-image: url(./img/wknight.png);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.wqueen{
+  background-image: url(./img/wqueen.png);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.wking{
+  background-image: url(./img/wking.png);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+
+.bpawn{
+  background-image: url(./img/bpawn.png);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.brook{
+  background-image: url(./img/brook.png);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.bbishop{
+  background-image: url(./img/bbishop.png);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.bknight{
+  background-image: url(./img/bknight.png);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.bqueen{
+  background-image: url(./img/bqueen.png);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.bking{
+  background-image: url(./img/bking.png);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+
+.selected::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 229, 255, 0.519); /* Adjust the color and opacity as needed */
+  z-index: 1; /* Ensure it appears above the background image */
+}
+.legal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(5, 240, 68, 0.805); /* Adjust the color and opacity as needed */
+    z-index: 1; /* Ensure it appears above the background image */
+}
