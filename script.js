@@ -131,18 +131,18 @@ function HideLegalMoves(square) {
 }
 
 function ShowLegalMoves(piece) {
-  if (piece.classList.contains("wpawn")) PawnMoves(piece, "white", "Show");
-  if (piece.classList.contains("bpawn")) PawnMoves(piece, "black", "Show");
-  if (piece.classList.contains("wrook")) PawnMoves(piece, "white", "Show");
-  if (piece.classList.contains("brook")) PawnMoves(piece, "black", "Show");
-  if (piece.classList.contains("wbishop")) PawnMoves(piece, "white", "Show");
-  if (piece.classList.contains("bbishop")) PawnMoves(piece, "black", "Show");
-  if (piece.classList.contains("wknight")) PawnMoves(piece, "white", "Show");
-  if (piece.classList.contains("bknight")) PawnMoves(piece, "black", "Show");
-  if (piece.classList.contains("wqueen")) PawnMoves(piece, "white", "Show");
-  if (piece.classList.contains("bqueen")) PawnMoves(piece, "black", "Show");
-  if (piece.classList.contains("wking")) PawnMoves(piece, "white", "Show");
-  if (piece.classList.contains("bking")) PawnMoves(piece, "black", "Show");
+  if (piece.classList.contains("wpawn")) Moves("pawn",piece, "white", "Show");
+  if (piece.classList.contains("bpawn")) Moves("pawn",piece, "black", "Show");
+  if (piece.classList.contains("wrook")) Moves("rook",piece, "white", "Show");
+  if (piece.classList.contains("brook")) Moves("rook",piece, "black", "Show");
+  if (piece.classList.contains("wbishop")) Moves("bishop",piece, "white", "Show");
+  if (piece.classList.contains("bbishop")) Moves("bishop",piece, "black", "Show");
+  if (piece.classList.contains("wknight")) Moves("knight",piece, "white", "Show");
+  if (piece.classList.contains("bknight")) Moves("knight",piece, "black", "Show");
+  if (piece.classList.contains("wqueen")) Moves("queen",piece, "white", "Show");
+  if (piece.classList.contains("bqueen")) Moves("queen",piece, "black", "Show");
+  if (piece.classList.contains("wking")) Moves("king",piece, "white", "Show");
+  if (piece.classList.contains("bking")) Moves("king",piece, "black", "Show");
 }
 
 // function HideLegalMoves(piece) {
@@ -150,8 +150,9 @@ function ShowLegalMoves(piece) {
 //   if(piece.classList.contains('bpawn')) PawnMoves(piece,"black",'Hide');
 // }
 
-function PawnMoves(input, color, showHide) {
-  let legalCoords = LegalPawnMoves(input, color);
+function Moves( pieceName, input, color, showHide) {
+  let legalCoords = GetLegalMoves(input, color, pieceName)
+  // let legalCoords = LegalPawnMoves(input, color);
   legalCoords = CheckForOwnPieces(legalCoords, color);
   for (let i = 0; i < legalCoords.length; i++) {
     if (showHide == "Show") {
@@ -161,31 +162,26 @@ function PawnMoves(input, color, showHide) {
       document.getElementById(legalCoords[i]).classList.remove("legal");
   }
 }
-function CheckForOwnPieces(legalArray, color){
-  let checkedArray = []
-  for (let i = 0; i < legalArray.length; i++) {
-    const squareToCheck= document.getElementById(legalArray[i]);
-    let vacantSpot = true;
-    if(color === 'white'){
-      for (let j = 0; j < whitePiecesArray.length; j++) {
-        if (squareToCheck.classList.contains(whitePiecesArray[j])) {
-          vacantSpot = false;
-          break;
-        }
-      }
-    }
-    if(color === 'black'){
-      for (let j = 0; j < blackPiecesArray.length; j++) {
-        if (squareToCheck.classList.contains(blackPiecesArray[j])) {
-          vacantSpot = false;
-          break;
-        }
-      }
-    }
-    if (vacantSpot) checkedArray.push(legalArray[i]);
+
+function GetLegalMoves(input, color, pieceName){
+  switch (pieceName) {
+    case 'pawn':
+        return LegalPawnMoves(input, color)
+    case 'rook':
+      return LegalRookMoves(input, color)
+    case 'bishop':
+      return LegalBishopMoves(input, color)
+    case 'knight':
+      return LegalKnightMoves(input, color)
+    case 'queen':
+      return LegalQueenMoves(input, color)
+    case 'king':
+      return LegalKingMoves(input, color)
+    default:
+      break;
   }
-  return checkedArray;
 }
+
 function LegalPawnMoves(piece, color) {
   let placement = piece.id;
   let legalChar = placement.charAt(0);
@@ -224,11 +220,95 @@ function LegalRookMoves(piece, color) {
   const filteredLetters = letters.filter((letter) => letter !== legalChar);
   const filteredNumbers = numbers.filter((number) => number !== legalNum);
   for (let i = 0; i < filteredLetters.length; i++) {
-    legalMoves[i] = filteredLetters[i] + legalNum;
+    legalMoves.push(filteredLetters[i] + legalNum);
   }
   for (let i = 0; i < filteredNumbers.length; i++) {
-    legalMoves[i + filteredLetters.length] = legalChar + filteredNumbers[i];
+    legalMoves.push(legalChar + filteredNumbers[i]);
   }
+  return legalMoves;
+}
+
+function LegalBishopMoves(piece, color) {
+  const placement = piece.id;
+  let legalChar = placement.charAt(0);
+  let legalNum = parseInt(placement.slice(1), 10);
+  let index = letters.indexOf(legalChar);
+  const legalMoves = [];
+  for (let i = index+1, j = 1; i < letters.length; i++, j++) {
+    if((legalNum-j)>0) legalMoves.push( letters[i] + (legalNum-j))
+    if((legalNum+j)<=8) legalMoves.push( letters[i] + (legalNum+j))
+  }
+  for (let i = index-1, j = 1; i > 0; i--, j++) {
+    if((legalNum-j)>0) legalMoves.push( letters[i] + (legalNum-j))
+    if((legalNum+j)<=8) legalMoves.push( letters[i] + (legalNum+j))
+  }
+  return legalMoves;
+}
+
+function LegalQueenMoves(piece, color) {
+  const legalMoves=[...LegalRookMoves(piece, color),...LegalBishopMoves(piece, color)];
+  return legalMoves;
+}
+
+function LegalKingMoves(piece, color) {
+  const legalMoves = [];
+  const placement = piece.id;
+  const legalChar = placement.charAt(0);
+  const legalNum = parseInt(placement.slice(1), 10);
+  const index = letters.indexOf(legalChar);
+    
+  if(index+1 < 8) legalMoves.push(letters[index+1] + legalNum );
+  if(index-1 > 0) legalMoves.push(letters[index-1] + legalNum)
+  if(legalNum+1 <= 8) legalMoves.push(legalChar + (legalNum+1));
+  if(legalNum-1 > 0) legalMoves.push(legalChar + (legalNum-1));
+  if(index+1 < 8 && legalNum+1 <= 8) legalMoves.push(letters[index+1] + (legalNum+1));
+  if(index+1 < 8 && legalNum-1 > 0 ) legalMoves.push(letters[index+1] + (legalNum-1));
+  if(index-1 > 0 && legalNum+1 <= 8) legalMoves.push(letters[index-1] + (legalNum+1));
+  if(index-1 > 0 && legalNum-1 > 0) legalMoves.push(letters[index-1] + (legalNum-1));
+  return legalMoves;
+  }
+
+  function LegalKnightMoves(piece, color) {
+    const legalMoves = [];
+    const placement = piece.id;
+    const legalChar = placement.charAt(0);
+    const legalNum = parseInt(placement.slice(1), 10);
+    const index = letters.indexOf(legalChar);
+    if(index+2 < 8 && legalNum+1 <= 8)legalMoves.push(letters[index+2] + (legalNum+1))
+    if(index-2 >= 0 && legalNum+1 <=8)legalMoves.push(letters[index-2] + (legalNum+1))
+    if(index+2 < 8 && legalNum-1 > 0)legalMoves.push(letters[index+2] + (legalNum-1))
+    if(index-2 >= 0 && legalNum-1 > 0)legalMoves.push(letters[index-2] + (legalNum-1))
+    if(index+1 < 8 && legalNum+2 <= 8)legalMoves.push(letters[index+1] + (legalNum+2))
+    if(index-1 >= 0 && legalNum+2 <= 8)legalMoves.push(letters[index-1] + (legalNum+2))
+    if(index+1 < 8 && legalNum-2 > 0)legalMoves.push(letters[index+1] + (legalNum-2))
+    if(index-1 >= 0 && legalNum-2 > 0 )legalMoves.push(letters[index-1] + (legalNum-2))
+    return legalMoves;
+    }
+
+function CheckForOwnPieces(legalArray, color){
+  let checkedArray = []
+  for (let i = 0; i < legalArray.length; i++) {
+    const squareToCheck= document.getElementById(legalArray[i]);
+    let vacantSpot = true;
+    if(color === 'white'){
+      for (let j = 0; j < whitePiecesArray.length; j++) {
+        if (squareToCheck.classList.contains(whitePiecesArray[j])) {
+          vacantSpot = false;
+          break;
+        }
+      }
+    }
+    if(color === 'black'){
+      for (let j = 0; j < blackPiecesArray.length; j++) {
+        if (squareToCheck.classList.contains(blackPiecesArray[j])) {
+          vacantSpot = false;
+          break;
+        }
+      }
+    }
+    if (vacantSpot) checkedArray.push(legalArray[i]);
+  }
+  return checkedArray;
 }
 ///////-----------------///////////
 ///////////functions///////////////
