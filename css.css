@@ -1,10 +1,58 @@
 :root{
   --color-dark: green;
   --color-light: white;
+  --color-text: black;
+  --color-div: rgb(40, 40, 40);
 }
 
+
+
+body{
+  overflow: hidden;
+}
+main{
+  background-color: beige;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.white-text{
+  color: white;
+}
+.black-text{
+  color: black;
+}
+.flex-container{
+  background-color: var(--color-div);
+  display: flex;
+  justify-content: center;
+  width: 100vw;
+}
+article{
+  flex: 1;
+}
 table{
   border-collapse: collapse;
+  flex: 1;
+  padding: 0;
+  margin: 0;
+  width: 45vw;
+  height: 45vw;
+}
+@media screen and (max-width: 720px) {
+  .flex-container{
+    display: block;
+    height: 100vh;
+  }
+  table{
+    width: 100vw;
+    height: 100vw;
+  }
+  article{
+    text-align: center;
+  }
 }
 tr.even td:nth-child(2n){
   background-color: var(--color-dark);
@@ -19,8 +67,7 @@ tr.odd td:nth-child(2n){
   background-color: var(--color-light);
 }
 td{
-  width: 5rem;
-  height: 5rem;
+  width: 12.5%;
   border: 1px solid black;
   position: relative;
 }
@@ -28,31 +75,37 @@ td{
   background-image: url(./img/wpawn.png);
   background-repeat: no-repeat;
   background-position: center;
+  background-size: contain;
 }
 .wrook{
   background-image: url(./img/wrook.png);
   background-repeat: no-repeat;
   background-position: center;
+  background-size: contain;
 }
 .wbishop{
   background-image: url(./img/wbishop.png);
   background-repeat: no-repeat;
   background-position: center;
+  background-size: contain;
 }
 .wknight{
   background-image: url(./img/wknight.png);
   background-repeat: no-repeat;
   background-position: center;
+  background-size: contain;
 }
 .wqueen{
   background-image: url(./img/wqueen.png);
   background-repeat: no-repeat;
   background-position: center;
+  background-size: contain;
 }
 .wking{
   background-image: url(./img/wking.png);
   background-repeat: no-repeat;
   background-position: center;
+  background-size: contain;
 }
 
 
@@ -60,31 +113,37 @@ td{
   background-image: url(./img/bpawn.png);
   background-repeat: no-repeat;
   background-position: center;
+  background-size: contain;
 }
 .brook{
   background-image: url(./img/brook.png);
   background-repeat: no-repeat;
   background-position: center;
+  background-size: contain;
 }
 .bbishop{
   background-image: url(./img/bbishop.png);
   background-repeat: no-repeat;
   background-position: center;
+  background-size: contain;
 }
 .bknight{
   background-image: url(./img/bknight.png);
   background-repeat: no-repeat;
   background-position: center;
+  background-size: contain;
 }
 .bqueen{
   background-image: url(./img/bqueen.png);
   background-repeat: no-repeat;
   background-position: center;
+  background-size: contain;
 }
 .bking{
   background-image: url(./img/bking.png);
   background-repeat: no-repeat;
   background-position: center;
+  background-size: contain;
 }
 
 
@@ -117,4 +176,8 @@ td{
   height: 100%;
   background-color: rgba(240, 142, 5, 0.805);
   z-index: 1;
+}
+
+.invisible{
+  display: none;
 }

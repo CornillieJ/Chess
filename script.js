@@ -7,6 +7,9 @@ let allPieces = document.querySelectorAll(
   ".bpawn, .brook, .bbishop, .bknight, .bqueen, .bking, .wpawn, .wrook, .wbishop, .wknight, .wqueen, .wking"
 );
 let squares = document.querySelectorAll("td");
+
+const whiteText = document.querySelector("white-text");
+const blackText = document.querySelector("black-text");
 const blackPiecesArray = [
   "bpawn",
   "brook",
@@ -64,7 +67,17 @@ function haveCommonClass(element1, element2) {
   }
   return false;
 }
+function showToMoveText(isWhiteTurn){
+  if(isWhiteTurn) {
+    whiteText.classList.remove('invisible');
+    blackText.classList.add('invisible');
+  }
+  else{
+    blackText.classList.remove('invisible');
+    whiteText.classList.add('invisible');
+  }
 
+}
 function Update() {
   allPieces = document.querySelectorAll(
     ".bpawn, .brook, .bbishop, .bknight, .bqueen, .bking, .wpawn, .wrook, .wbishop, .wknight, .wqueen, .wking"
@@ -93,6 +106,7 @@ function selectPieces(squares, square) {
         square.classList.add("selected");
         ShowLegalMoves(square);
         previousId = square.id;
+        showToMoveText(isWhiteTurn);
       }
     }
   } else {
