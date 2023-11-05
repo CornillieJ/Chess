@@ -736,6 +736,7 @@ function CheckForOwnPieces(legalArray, pieceName) {
 }
 
 function ResetAllTdsToInitialState() {
+  if(switched) SwitchBoard();
   initialTdClasses.forEach((tdInfo) => {
     tdInfo.element.className = tdInfo.class;
   });
@@ -745,13 +746,22 @@ function ResetAllTdsToInitialState() {
 
 function SwitchBoard() {
   if(!switched){
-    table.style.transform = "rotate(180deg)";
-    tableCells.forEach(cell=>{cell.style.transform = "rotate(180deg)";});
+    table.classList.remove('rotated-full');
+    tableCells.forEach(cell=>{cell.classList.remove('rotated-full-cells');});
+    table.classList.add('rotated');
+    tableCells.forEach(cell=>{cell.classList.add('rotated-cells');});
+
+    // table.style.transform = "rotate(180deg)";
+    // tableCells.forEach(cell=>{cell.style.transform = "rotate(180deg)";});
     switched = true;
   }
   else{
-    table.style.transform = "none";
-    tableCells.forEach(cell=>{cell.style.transform = "none";});
+    table.classList.add('rotated-full');
+    tableCells.forEach(cell=>{cell.classList.add('rotated-full-cells');});
+    table.classList.remove('rotated');
+    tableCells.forEach(cell=>{cell.classList.remove('rotated-cells');});
+    // table.style.transform = "none";
+    // tableCells.forEach(cell=>{cell.style.transform = "none";});
     switched = false;
   }
 }

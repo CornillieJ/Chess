@@ -5,11 +5,11 @@
   --color-div: rgb(40, 40, 40);
   --color-button: #686868;
 }
-
 body{
   overflow: hidden;
   margin: 0;
 }
+
 main{
   background-color: beige;
   height: 100vh;
@@ -143,6 +143,22 @@ td{
 }
 .reset:active{
   box-shadow: -3px -3px 3px black;
+}
+.rotated{
+  transform: rotate(180deg);
+  transition: transform 1s;
+}
+.rotated-full{
+  transform: rotate(360deg);
+  transition: transform 1s;
+}
+.rotated-cells{
+  transform: rotate(180deg);
+  transition-delay: 0.3s;
+}
+.rotated-full-cells{
+  transform: rotate(360deg);
+  transition-delay: 0.3s;
 }
 @media screen and (max-width: 720px) {
   .flex-container{
