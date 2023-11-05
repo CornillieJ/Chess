@@ -45,6 +45,7 @@ const numbers = [1, 2, 3, 4, 5, 6, 7, 8];
 let previousId = 0;
 let selected = 0;
 let capture = [];
+let IsWhiteTurn=true;
 ///////-----------------///////////
 ///////////variables///////////////
 ///////////////////////////////////
@@ -315,15 +316,21 @@ function LegalBishopMoves(piece, color, pieceName) {
   let legalNum = parseInt(placement.slice(1), 10);
   let index = letters.indexOf(legalChar);
   const legalMoves = [];
+  let tempArray1=[];
+  let tempArray2=[];
   for (let i = index + 1, j = 1; i < letters.length; i++, j++) {
-    if (legalNum - j > 0) legalMoves.push(letters[i] + (legalNum - j));
-    if (legalNum + j <= 8) legalMoves.push(letters[i] + (legalNum + j));
+    if (legalNum + j <= 8) tempArray1.push(letters[i] + (legalNum + j)); //topright
+    if (legalNum - j > 0) tempArray2.push(letters[i] + (legalNum - j)); //bottomright
   }
+  legalMoves.push(tempArray1, tempArray2);
+  tempArray1=[];
+  tempArray2=[];
   for (let i = index - 1, j = 1; i >= 0; i--, j++) {
-    if (legalNum - j > 0) legalMoves.push(letters[i] + (legalNum - j));
-    if (legalNum + j <= 8) legalMoves.push(letters[i] + (legalNum + j));
+    if (legalNum + j <= 8) tempArray1.push(letters[i] + (legalNum + j)); //topleft
+    if (legalNum - j > 0) tempArray2.push(letters[i] + (legalNum - j)); //bottomleft
   }
-  return legalMoves;
+  legalMoves.push(tempArray1, tempArray2);
+  return StopMovement(pieceName, legalChar, legalNum, index, legalMoves);
 }
 
 function LegalQueenMoves(piece, color, pieceName) {
@@ -488,7 +495,6 @@ function StopMovement(pieceName, pieceChar, pieceNum, index, legalMoves) {
             if (isFirst && piecesArray[j].charAt(0) !== pieceName.charAt(0)) {
               rookResult.push(backRook[i]);
               capture.push(backRook[i]);
-              capture;
             }
             isFirst = 0;
             isWallBack = true;
@@ -503,6 +509,81 @@ function StopMovement(pieceName, pieceChar, pieceNum, index, legalMoves) {
     //
     case "wbishop":
     case "bbishop":
+      const topRight =legalMoves[0];
+      const bottomRight =legalMoves[1];
+      const topLeft =legalMoves[2];
+      const bottomLeft =legalMoves[3];
+      const bishopResult =[];
+      //topright
+      let isWallBishop = false;
+      let isFirstBishop = true;
+      for (let i = 0; i < topRight.length ; i++) {
+        const topRightelement = document.getElementById(topRight[i]);
+        for (let j = 0; j < piecesArray.length; j++) {
+          if (topRightelement.classList.contains(piecesArray[j])) {
+            if (isFirstBishop && piecesArray[j].charAt(0) !== pieceName.charAt(0)) {
+              bishopResult.push(topRight[i]);
+              capture.push(topRight[i]);
+            }
+            isFirstBishop = 0;
+            isWallBishop = true;
+          }
+        }
+        if (!isWallBishop) bishopResult.push(topRight[i]);
+      }
+      //bottomright
+      isWallBishop = false;
+      isFirstBishop = true;
+      for (let i = 0; i < bottomRight.length ; i++) {
+        const bottomRightelement = document.getElementById(bottomRight[i]);
+        for (let j = 0; j < piecesArray.length; j++) {
+          if (bottomRightelement.classList.contains(piecesArray[j])) {
+            if (isFirstBishop && piecesArray[j].charAt(0) !== pieceName.charAt(0)) {
+              bishopResult.push(bottomRight[i]);
+              capture.push(bottomRight[i]);
+            }
+            isFirstBishop = 0;
+            isWallBishop = true;
+          }
+        }
+        if (!isWallBishop) bishopResult.push(bottomRight[i]);
+      }
+      //topleft
+      isWallBishop = false;
+      isFirstBishop = true;
+      for (let i = 0; i < topLeft.length ; i++) {
+        const topLeftelement = document.getElementById(topLeft[i]);
+        for (let j = 0; j < piecesArray.length; j++) {
+          if (topLeftelement.classList.contains(piecesArray[j])) {
+            if (isFirstBishop && piecesArray[j].charAt(0) !== pieceName.charAt(0)) {
+              bishopResult.push(topLeft[i]);
+              capture.push(topLeft[i]);
+            }
+            isFirstBishop = 0;
+            isWallBishop = true;
+          }
+        }
+        if (!isWallBishop) bishopResult.push(topLeft[i]);
+      }
+      //bottomleft
+      isWallBishop = false;
+      isFirstBishop = true;
+      for (let i = 0; i < bottomLeft.length ; i++) {
+        const bottomLeftelement = document.getElementById(bottomLeft[i]);
+        for (let j = 0; j < piecesArray.length; j++) {
+          if (bottomLeftelement.classList.contains(piecesArray[j])) {
+            if (isFirstBishop && piecesArray[j].charAt(0) !== pieceName.charAt(0)) {
+              bishopResult.push(bottomLeft[i]);
+              capture.push(bottomLeft[i]);
+            }
+            isFirstBishop = 0;
+            isWallBishop = true;
+          }
+        }
+        if (!isWallBishop) bishopResult.push(bottomLeft[i]);
+      }
+      
+      return bishopResult;
       break;
     case "wknight":
     case "bknight":
