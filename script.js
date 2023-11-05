@@ -5,17 +5,17 @@
 ///////-----------------///////////
 
 let initialTdClasses = [];
-const tableCells = document.querySelectorAll('td');
+const table = document.querySelector("table");
+const tableCells = document.querySelectorAll("td");
 tableCells.forEach((cell) => {
-    initialTdClasses.push({ element: cell, class: cell.className });
+  initialTdClasses.push({ element: cell, class: cell.className });
 });
-
 
 let allPieces = document.querySelectorAll(
   ".bpawn, .brook, .bbishop, .bknight, .bqueen, .bking, .wpawn, .wrook, .wbishop, .wknight, .wqueen, .wking"
 );
 let squares = document.querySelectorAll("td");
-const centerText = document.querySelector('.center-text');
+const centerText = document.querySelector(".center-text");
 const whiteText = document.querySelector(".white-text");
 const blackText = document.querySelector(".black-text");
 const blackPiecesArray = [
@@ -60,7 +60,7 @@ let check = false;
 let checked = false;
 let whiteWinCheck = 0;
 let blackWinCheck = 0;
-
+let switched = false;
 ///////-----------------///////////
 ///////////variables///////////////
 ///////////////////////////////////
@@ -136,7 +136,8 @@ function MovePieces(square) {
     previous.classList = [];
     moved = true;
     showToMoveText(isWhiteTurn);
-    checkWin()
+    checkWin();
+  if(isPlayer2) SwitchBoard();
   } else {
     previousId !== 0 ? previous.classList.remove("selected") : undefined;
   }
@@ -146,46 +147,22 @@ function MovePieces(square) {
   ShowCaptureMoves();
   Update();
 }
-// function ShowCheck() {
-//   if (wCheck) {
-//     wChecked = true;
-//     squares.forEach((square) => {
-//       if (square.classList.contains("wking")) square.classList.add("check");
-//     });
-//   }
-//   if (wChecked && !wCheck) {
-//     squares.forEach((square) => {
-//       if (square.classList.contains("wking")) square.classList.remove("check");
-//     });
-//   }
-//   if (bCheck) {
-//     wChecked = true;
-//     squares.forEach((square) => {
-//       if (square.classList.contains("bking")) square.classList.add("check");
-//     });
-//   }
-//   if (bChecked && !bCheck) {
-//     squares.forEach((square) => {
-//       if (square.classList.contains("bking")) square.classList.remove("check");
-//     });
-//   }
-// }
-function checkWin(){
+function checkWin() {
   whiteWinCheck = true;
   blackWinCheck = true;
-  squares.forEach(square => {
-    if(square.classList.contains('bking')) whiteWinCheck=false;
-    if(square.classList.contains('wking')) blackWinCheck=false;
+  squares.forEach((square) => {
+    if (square.classList.contains("bking")) whiteWinCheck = false;
+    if (square.classList.contains("wking")) blackWinCheck = false;
   });
-  if(whiteWinCheck) {
-    centerText.textContent='White Wins';
-    win.classList.remove('invisible');
-    overlay.classList.remove('invisible');
+  if (whiteWinCheck) {
+    centerText.textContent = "White Wins";
+    win.classList.remove("invisible");
+    overlay.classList.remove("invisible");
   }
-  if(blackWinCheck) {
-    centerText.textContent='Black Wins';
-    win.classList.remove('invisible');
-    overlay.classList.remove('invisible');
+  if (blackWinCheck) {
+    centerText.textContent = "Black Wins";
+    win.classList.remove("invisible");
+    overlay.classList.remove("invisible");
   }
 }
 function CopyClasses(from, to) {
@@ -758,14 +735,25 @@ function CheckForOwnPieces(legalArray, pieceName) {
   return checkedArray;
 }
 
-
-
 function ResetAllTdsToInitialState() {
   initialTdClasses.forEach((tdInfo) => {
-      tdInfo.element.className = tdInfo.class;
+    tdInfo.element.className = tdInfo.class;
   });
-  isWhiteTurn=true;
-  showToMoveText(isWhiteTurn)
+  isWhiteTurn = true;
+  showToMoveText(isWhiteTurn);
+}
+
+function SwitchBoard() {
+  if(!switched){
+    table.style.transform = "rotate(180deg)";
+    tableCells.forEach(cell=>{cell.style.transform = "rotate(180deg)";});
+    switched = true;
+  }
+  else{
+    table.style.transform = "none";
+    tableCells.forEach(cell=>{cell.style.transform = "none";});
+    switched = false;
+  }
 }
 ///////-----------------///////////
 ///////////functions///////////////
@@ -781,10 +769,12 @@ squares.forEach((square) => {
   });
 });
 
-document.addEventListener('keydown', function(e){
-  if (e.key === 'r' || e.key === 'R') { 
-    console.log('r was pressed');
-    ResetAllTdsToInitialState()
+document.addEventListener("keydown", function (e) {
+  if (e.key === "r" || e.key === "R") {
+    ResetAllTdsToInitialState();
+  }
+  if (e.key === "f" || e.key === "F") {
+    SwitchBoard();
   }
 });
 

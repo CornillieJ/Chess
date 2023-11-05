@@ -3,6 +3,7 @@
   --color-light: white;
   --color-text: black;
   --color-div: rgb(40, 40, 40);
+  --color-button: #686868;
 }
 
 body{
@@ -106,7 +107,43 @@ td{
   border: none;
   background: none;
 }
+.flip, .reset{
+  margin-top: 1rem;
+  margin-left: 1rem;
+  font-size: 3rem;
+  color: var(--color-button);
+  cursor: pointer;
+  border: none;
+  background: none;
+  box-shadow: 1px 1px 0px black;
+}
 
+.flip:active{
+  box-shadow: -3px -3px 3px black;
+}
+.player-2{
+  position: absolute;
+  top: 80vh;
+  left: 0;
+  display: flex;
+}
+.player-2 button{
+  font-size: 2rem;
+  text-wrap: nowrap;
+  color: var(--color-button);
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+.player-2 p{
+  font-size: 2rem;
+  text-wrap: nowrap;
+  color: rgb(179, 0, 0);
+  background: none;
+}
+.reset:active{
+  box-shadow: -3px -3px 3px black;
+}
 @media screen and (max-width: 720px) {
   .flex-container{
     display: block;
