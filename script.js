@@ -3,11 +3,19 @@
 ///////////////////////////////////
 ///////////variables///////////////
 ///////-----------------///////////
+
+let initialTdClasses = [];
+const tableCells = document.querySelectorAll('td');
+tableCells.forEach((cell) => {
+    initialTdClasses.push({ element: cell, class: cell.className });
+});
+
+
 let allPieces = document.querySelectorAll(
   ".bpawn, .brook, .bbishop, .bknight, .bqueen, .bking, .wpawn, .wrook, .wbishop, .wknight, .wqueen, .wking"
 );
 let squares = document.querySelectorAll("td");
-
+const centerText = document.querySelector('.center-text');
 const whiteText = document.querySelector(".white-text");
 const blackText = document.querySelector(".black-text");
 const blackPiecesArray = [
@@ -50,6 +58,9 @@ let capture = [];
 let isWhiteTurn = true;
 let check = false;
 let checked = false;
+let whiteWinCheck = 0;
+let blackWinCheck = 0;
+
 ///////-----------------///////////
 ///////////variables///////////////
 ///////////////////////////////////
@@ -125,6 +136,7 @@ function MovePieces(square) {
     previous.classList = [];
     moved = true;
     showToMoveText(isWhiteTurn);
+    checkWin()
   } else {
     previousId !== 0 ? previous.classList.remove("selected") : undefined;
   }
@@ -158,6 +170,24 @@ function MovePieces(square) {
 //     });
 //   }
 // }
+function checkWin(){
+  whiteWinCheck = true;
+  blackWinCheck = true;
+  squares.forEach(square => {
+    if(square.classList.contains('bking')) whiteWinCheck=false;
+    if(square.classList.contains('wking')) blackWinCheck=false;
+  });
+  if(whiteWinCheck) {
+    centerText.textContent='White Wins';
+    win.classList.remove('invisible');
+    overlay.classList.remove('invisible');
+  }
+  if(blackWinCheck) {
+    centerText.textContent='Black Wins';
+    win.classList.remove('invisible');
+    overlay.classList.remove('invisible');
+  }
+}
 function CopyClasses(from, to) {
   to.classList = [];
   for (let i = 0; i < from.classList.length; i++) {
@@ -414,7 +444,6 @@ function LegalQueenMoves(piece, pieceName) {
     bishopPartName = "bbishop";
   }
   const rookPart = LegalRookMoves(piece, rookPartName);
-  console.log(rookPart);
   const legalMoves = [
     ...LegalRookMoves(piece, rookPartName),
     ...LegalBishopMoves(piece, bishopPartName),
@@ -728,6 +757,16 @@ function CheckForOwnPieces(legalArray, pieceName) {
   }
   return checkedArray;
 }
+
+
+
+function ResetAllTdsToInitialState() {
+  initialTdClasses.forEach((tdInfo) => {
+      tdInfo.element.className = tdInfo.class;
+  });
+  isWhiteTurn=true;
+  showToMoveText(isWhiteTurn)
+}
 ///////-----------------///////////
 ///////////functions///////////////
 ///////////////////////////////////
@@ -741,6 +780,14 @@ squares.forEach((square) => {
     ShowCheck();
   });
 });
+
+document.addEventListener('keydown', function(e){
+  if (e.key === 'r' || e.key === 'R') { 
+    console.log('r was pressed');
+    ResetAllTdsToInitialState()
+  }
+});
+
 ///////-----------------///////////
 /////////////events////////////////
 ///////////////////////////////////
