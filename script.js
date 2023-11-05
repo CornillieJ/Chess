@@ -8,8 +8,8 @@ let allPieces = document.querySelectorAll(
 );
 let squares = document.querySelectorAll("td");
 
-const whiteText = document.querySelector("white-text");
-const blackText = document.querySelector("black-text");
+const whiteText = document.querySelector(".white-text");
+const blackText = document.querySelector(".black-text");
 const blackPiecesArray = [
   "bpawn",
   "brook",
@@ -106,7 +106,6 @@ function selectPieces(squares, square) {
         square.classList.add("selected");
         ShowLegalMoves(square);
         previousId = square.id;
-        showToMoveText(isWhiteTurn);
       }
     }
   } else {
@@ -140,6 +139,7 @@ function MovePieces(square) {
     CopyClasses(previous, square);
     previous.classList = [];
     moved = true;
+    showToMoveText(isWhiteTurn);
   } else {
     selected = 0;
     previousId !== 0 ? previous.classList.remove("selected") : undefined;
