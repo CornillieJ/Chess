@@ -123,7 +123,7 @@ td{
 }
 .player-2{
   position: absolute;
-  top: 80vh;
+  bottom: 20vh;
   left: 0;
   display: flex;
 }
@@ -159,6 +159,16 @@ td{
   }
   article{
     text-align: center;
+    height: 100vw;
+  }
+  .white-text, .black-text{
+    top: 0;
+  }
+  .flip{
+    margin-top: 6rem;
+  }
+  .player-2{
+    bottom: 0;
   }
 }
 
