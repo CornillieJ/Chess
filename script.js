@@ -45,7 +45,7 @@ const numbers = [1, 2, 3, 4, 5, 6, 7, 8];
 let previousId = 0;
 let selected = 0;
 let capture = [];
-let IsWhiteTurn=true;
+let isWhiteTurn = true;
 ///////-----------------///////////
 ///////////variables///////////////
 ///////////////////////////////////
@@ -80,10 +80,21 @@ function selectPieces(squares, square) {
     selected = 0;
   }
   if (moved === false) {
-    square.classList.add("selected");
-    selected = 1;
-    ShowLegalMoves(square);
-    previousId = square.id;
+    if (isWhiteTurn) {
+      if (square.classList.contains("white")) {
+        square.classList.add("selected");
+        selected = 1;
+        ShowLegalMoves(square);
+        previousId = square.id;
+      }
+    } else {
+      if (square.classList.contains("black")) {
+        selected = 1;
+        square.classList.add("selected");
+        ShowLegalMoves(square);
+        previousId = square.id;
+      }
+    }
   } else {
     moved = false;
   }
@@ -111,6 +122,7 @@ function MovePieces(square) {
   let previous =
     previousId !== 0 ? document.getElementById(previousId) : undefined;
   if (isMoveLegal) {
+    isWhiteTurn = !isWhiteTurn;
     CopyClasses(previous, square);
     previous.classList = [];
     moved = true;
@@ -316,15 +328,15 @@ function LegalBishopMoves(piece, color, pieceName) {
   let legalNum = parseInt(placement.slice(1), 10);
   let index = letters.indexOf(legalChar);
   const legalMoves = [];
-  let tempArray1=[];
-  let tempArray2=[];
+  let tempArray1 = [];
+  let tempArray2 = [];
   for (let i = index + 1, j = 1; i < letters.length; i++, j++) {
     if (legalNum + j <= 8) tempArray1.push(letters[i] + (legalNum + j)); //topright
     if (legalNum - j > 0) tempArray2.push(letters[i] + (legalNum - j)); //bottomright
   }
   legalMoves.push(tempArray1, tempArray2);
-  tempArray1=[];
-  tempArray2=[];
+  tempArray1 = [];
+  tempArray2 = [];
   for (let i = index - 1, j = 1; i >= 0; i--, j++) {
     if (legalNum + j <= 8) tempArray1.push(letters[i] + (legalNum + j)); //topleft
     if (legalNum - j > 0) tempArray2.push(letters[i] + (legalNum - j)); //bottomleft
@@ -509,19 +521,22 @@ function StopMovement(pieceName, pieceChar, pieceNum, index, legalMoves) {
     //
     case "wbishop":
     case "bbishop":
-      const topRight =legalMoves[0];
-      const bottomRight =legalMoves[1];
-      const topLeft =legalMoves[2];
-      const bottomLeft =legalMoves[3];
-      const bishopResult =[];
+      const topRight = legalMoves[0];
+      const bottomRight = legalMoves[1];
+      const topLeft = legalMoves[2];
+      const bottomLeft = legalMoves[3];
+      const bishopResult = [];
       //topright
       let isWallBishop = false;
       let isFirstBishop = true;
-      for (let i = 0; i < topRight.length ; i++) {
+      for (let i = 0; i < topRight.length; i++) {
         const topRightelement = document.getElementById(topRight[i]);
         for (let j = 0; j < piecesArray.length; j++) {
           if (topRightelement.classList.contains(piecesArray[j])) {
-            if (isFirstBishop && piecesArray[j].charAt(0) !== pieceName.charAt(0)) {
+            if (
+              isFirstBishop &&
+              piecesArray[j].charAt(0) !== pieceName.charAt(0)
+            ) {
               bishopResult.push(topRight[i]);
               capture.push(topRight[i]);
             }
@@ -534,11 +549,14 @@ function StopMovement(pieceName, pieceChar, pieceNum, index, legalMoves) {
       //bottomright
       isWallBishop = false;
       isFirstBishop = true;
-      for (let i = 0; i < bottomRight.length ; i++) {
+      for (let i = 0; i < bottomRight.length; i++) {
         const bottomRightelement = document.getElementById(bottomRight[i]);
         for (let j = 0; j < piecesArray.length; j++) {
           if (bottomRightelement.classList.contains(piecesArray[j])) {
-            if (isFirstBishop && piecesArray[j].charAt(0) !== pieceName.charAt(0)) {
+            if (
+              isFirstBishop &&
+              piecesArray[j].charAt(0) !== pieceName.charAt(0)
+            ) {
               bishopResult.push(bottomRight[i]);
               capture.push(bottomRight[i]);
             }
@@ -551,11 +569,14 @@ function StopMovement(pieceName, pieceChar, pieceNum, index, legalMoves) {
       //topleft
       isWallBishop = false;
       isFirstBishop = true;
-      for (let i = 0; i < topLeft.length ; i++) {
+      for (let i = 0; i < topLeft.length; i++) {
         const topLeftelement = document.getElementById(topLeft[i]);
         for (let j = 0; j < piecesArray.length; j++) {
           if (topLeftelement.classList.contains(piecesArray[j])) {
-            if (isFirstBishop && piecesArray[j].charAt(0) !== pieceName.charAt(0)) {
+            if (
+              isFirstBishop &&
+              piecesArray[j].charAt(0) !== pieceName.charAt(0)
+            ) {
               bishopResult.push(topLeft[i]);
               capture.push(topLeft[i]);
             }
@@ -568,11 +589,14 @@ function StopMovement(pieceName, pieceChar, pieceNum, index, legalMoves) {
       //bottomleft
       isWallBishop = false;
       isFirstBishop = true;
-      for (let i = 0; i < bottomLeft.length ; i++) {
+      for (let i = 0; i < bottomLeft.length; i++) {
         const bottomLeftelement = document.getElementById(bottomLeft[i]);
         for (let j = 0; j < piecesArray.length; j++) {
           if (bottomLeftelement.classList.contains(piecesArray[j])) {
-            if (isFirstBishop && piecesArray[j].charAt(0) !== pieceName.charAt(0)) {
+            if (
+              isFirstBishop &&
+              piecesArray[j].charAt(0) !== pieceName.charAt(0)
+            ) {
               bishopResult.push(bottomLeft[i]);
               capture.push(bottomLeft[i]);
             }
@@ -582,7 +606,7 @@ function StopMovement(pieceName, pieceChar, pieceNum, index, legalMoves) {
         }
         if (!isWallBishop) bishopResult.push(bottomLeft[i]);
       }
-      
+
       return bishopResult;
       break;
     case "wknight":
