@@ -44,6 +44,7 @@ const letters = ["a", "b", "c", "d", "e", "f", "g", "h"];
 const numbers = [1, 2, 3, 4, 5, 6, 7, 8];
 let previousId = 0;
 let selected = 0;
+let capture = [];
 ///////-----------------///////////
 ///////////variables///////////////
 ///////////////////////////////////
@@ -104,6 +105,7 @@ function IsMoveLegal(to) {
 }
 
 function MovePieces(square) {
+  HideCaptureMoves();
   let isMoveLegal = IsMoveLegal(square);
   let previous =
     previousId !== 0 ? document.getElementById(previousId) : undefined;
@@ -116,7 +118,9 @@ function MovePieces(square) {
     previousId !== 0 ? previous.classList.remove("selected") : undefined;
   }
   square.classList.remove("selected");
+  capture = [];
   selectPieces(squares, square);
+  ShowCaptureMoves();
   Update();
 }
 
@@ -132,24 +136,38 @@ function HideLegalMoves(square) {
 }
 
 function ShowLegalMoves(piece) {
-  if (piece.classList.contains("wpawn")) Moves("pawn", piece, "white", "Show");
-  if (piece.classList.contains("bpawn")) Moves("pawn", piece, "black", "Show");
-  if (piece.classList.contains("wrook")) Moves("rook", piece, "white", "Show");
-  if (piece.classList.contains("brook")) Moves("rook", piece, "black", "Show");
+  if (piece.classList.contains("wpawn")) Moves("wpawn", piece, "white", "Show");
+  if (piece.classList.contains("bpawn")) Moves("bpawn", piece, "black", "Show");
+  if (piece.classList.contains("wrook")) Moves("wrook", piece, "white", "Show");
+  if (piece.classList.contains("brook")) Moves("brook", piece, "black", "Show");
   if (piece.classList.contains("wbishop"))
-    Moves("bishop", piece, "white", "Show");
+    Moves("wbishop", piece, "white", "Show");
   if (piece.classList.contains("bbishop"))
-    Moves("bishop", piece, "black", "Show");
+    Moves("bbishop", piece, "black", "Show");
   if (piece.classList.contains("wknight"))
-    Moves("knight", piece, "white", "Show");
+    Moves("wknight", piece, "white", "Show");
   if (piece.classList.contains("bknight"))
-    Moves("knight", piece, "black", "Show");
+    Moves("bknight", piece, "black", "Show");
   if (piece.classList.contains("wqueen"))
-    Moves("queen", piece, "white", "Show");
+    Moves("wqueen", piece, "white", "Show");
   if (piece.classList.contains("bqueen"))
-    Moves("queen", piece, "black", "Show");
-  if (piece.classList.contains("wking")) Moves("king", piece, "white", "Show");
-  if (piece.classList.contains("bking")) Moves("king", piece, "black", "Show");
+    Moves("bqueen", piece, "black", "Show");
+  if (piece.classList.contains("wking")) Moves("wking", piece, "white", "Show");
+  if (piece.classList.contains("bking")) Moves("bking", piece, "black", "Show");
+}
+function ShowCaptureMoves() {
+  if (capture.length > 0) {
+    for (let i = 0; i < capture.length; i++) {
+      document.getElementById(capture[i]).classList.add("capture");
+    }
+  }
+}
+function HideCaptureMoves() {
+  if (capture.length > 0) {
+    for (let i = 0; i < capture.length; i++) {
+      document.getElementById(capture[i]).classList.remove("capture");
+    }
+  }
 }
 
 // function HideLegalMoves(piece) {
@@ -160,7 +178,7 @@ function ShowLegalMoves(piece) {
 function Moves(pieceName, input, color, showHide) {
   let legalCoords = GetLegalMoves(input, color, pieceName);
   // let legalCoords = LegalPawnMoves(input, color);
-  legalCoords = CheckForOwnPieces(legalCoords, color);
+  // legalCoords = CheckForOwnPieces(legalCoords, color);
   for (let i = 0; i < legalCoords.length; i++) {
     if (showHide == "Show") {
       document.getElementById(legalCoords[i]).classList.add("legal");
@@ -172,24 +190,30 @@ function Moves(pieceName, input, color, showHide) {
 
 function GetLegalMoves(input, color, pieceName) {
   switch (pieceName) {
-    case "pawn":
-      return LegalPawnMoves(input, color);
-    case "rook":
-      return LegalRookMoves(input, color);
-    case "bishop":
-      return LegalBishopMoves(input, color);
-    case "knight":
-      return LegalKnightMoves(input, color);
-    case "queen":
-      return LegalQueenMoves(input, color);
-    case "king":
-      return LegalKingMoves(input, color);
+    case "wpawn":
+    case "bpawn":
+      return LegalPawnMoves(input, color, pieceName);
+    case "wrook":
+    case "brook":
+      return LegalRookMoves(input, color, pieceName);
+    case "wbishop":
+    case "bbishop":
+      return LegalBishopMoves(input, color, pieceName);
+    case "wknight":
+    case "bknight":
+      return LegalKnightMoves(input, color, pieceName);
+    case "wqueen":
+    case "bqueen":
+      return LegalQueenMoves(input, color, pieceName);
+    case "wking":
+    case "bking":
+      return LegalKingMoves(input, color, pieceName);
     default:
       break;
   }
 }
 
-function LegalPawnMoves(piece, color) {
+function LegalPawnMoves(piece, color, pieceName) {
   let placement = piece.id;
   let legalChar = placement.charAt(0);
   let legalNum = parseInt(placement.slice(1), 10);
@@ -206,15 +230,19 @@ function LegalPawnMoves(piece, color) {
       if (leftFrontId != 0) {
         leftFront = document.getElementById(leftFrontId);
         for (let i = 0; i < blackPiecesArray.length; i++) {
-          if (leftFront.classList.contains(blackPiecesArray[i]))
+          if (leftFront.classList.contains(blackPiecesArray[i])) {
             legalMoves.push(leftFrontId);
+            capture.push(leftFrontId);
+          }
         }
       }
       if (rightFrontId != 0) {
         rightFront = document.getElementById(rightFrontId);
         for (let i = 0; i < blackPiecesArray.length; i++) {
-          if (rightFront.classList.contains(blackPiecesArray[i]))
+          if (rightFront.classList.contains(blackPiecesArray[i])) {
             legalMoves.push(rightFrontId);
+            capture.push(rightFrontId);
+          }
         }
       }
     }
@@ -237,15 +265,19 @@ function LegalPawnMoves(piece, color) {
       if (leftFrontId != 0) {
         leftFront = document.getElementById(leftFrontId);
         for (let i = 0; i < whitePiecesArray.length; i++) {
-          if (leftFront.classList.contains(whitePiecesArray[i]))
+          if (leftFront.classList.contains(whitePiecesArray[i])) {
             legalMoves.push(leftFrontId);
+            capture.push(leftFrontId);
+          }
         }
       }
       if (rightFrontId != 0) {
         rightFront = document.getElementById(rightFrontId);
         for (let i = 0; i < whitePiecesArray.length; i++) {
-          if (rightFront.classList.contains(whitePiecesArray[i]))
+          if (rightFront.classList.contains(whitePiecesArray[i])) {
             legalMoves.push(rightFrontId);
+            capture.push(rightFrontId);
+          }
         }
       }
     }
@@ -255,11 +287,11 @@ function LegalPawnMoves(piece, color) {
       legalMoves.push(legal1, legal2);
     } else if (legalNum === 1) legalMoves.push(legalChar + legalNum);
     else legalMoves.push(legalChar + (legalNum - 1));
-    return StopMovement("bpawn", legalChar, legalNum, index, legalMoves);
+    return StopMovement(pieceName, legalChar, legalNum, index, legalMoves);
   }
 }
 
-function LegalRookMoves(piece, color) {
+function LegalRookMoves(piece, color, pieceName) {
   let placement = piece.id;
   let legalChar = placement.charAt(0);
   let legalNum = parseInt(placement.slice(1), 10);
@@ -273,10 +305,11 @@ function LegalRookMoves(piece, color) {
   for (let i = 0; i < filteredNumbers.length; i++) {
     legalMoves.push(legalChar + filteredNumbers[i]);
   }
-  return StopMovement("rook", legalChar, legalNum, index, legalMoves);
+
+  return StopMovement(pieceName, legalChar, legalNum, index, legalMoves);
 }
 
-function LegalBishopMoves(piece, color) {
+function LegalBishopMoves(piece, color, pieceName) {
   const placement = piece.id;
   let legalChar = placement.charAt(0);
   let legalNum = parseInt(placement.slice(1), 10);
@@ -293,15 +326,26 @@ function LegalBishopMoves(piece, color) {
   return legalMoves;
 }
 
-function LegalQueenMoves(piece, color) {
+function LegalQueenMoves(piece, color, pieceName) {
+  let rookPartName;
+  let bishopPartName;
+  if (pieceName.charAt(0) === "w") {
+    rookPartName = "wrook";
+    bishopPartName = "wbishop";
+  } else {
+    rookPartName = "brook";
+    bishopPartName = "bbishop";
+  }
+  const rookPart = LegalRookMoves(piece, color, rookPartName);
+  console.log(rookPart);
   const legalMoves = [
-    ...LegalRookMoves(piece, color),
-    ...LegalBishopMoves(piece, color),
+    ...LegalRookMoves(piece, color, rookPartName),
+    ...LegalBishopMoves(piece, color, bishopPartName),
   ];
   return legalMoves;
 }
 
-function LegalKingMoves(piece, color) {
+function LegalKingMoves(piece, color, pieceName) {
   const legalMoves = [];
   const placement = piece.id;
   const legalChar = placement.charAt(0);
@@ -320,10 +364,10 @@ function LegalKingMoves(piece, color) {
     legalMoves.push(letters[index - 1] + (legalNum + 1));
   if (index - 1 > 0 && legalNum - 1 > 0)
     legalMoves.push(letters[index - 1] + (legalNum - 1));
-  return legalMoves;
+  return StopMovement(pieceName, legalChar, legalNum, index, legalMoves);
 }
 
-function LegalKnightMoves(piece, color) {
+function LegalKnightMoves(piece, color, pieceName) {
   const legalMoves = [];
   const placement = piece.id;
   const legalChar = placement.charAt(0);
@@ -345,9 +389,8 @@ function LegalKnightMoves(piece, color) {
     legalMoves.push(letters[index + 1] + (legalNum - 2));
   if (index - 1 >= 0 && legalNum - 2 > 0)
     legalMoves.push(letters[index - 1] + (legalNum - 2));
-  return legalMoves;
+  return StopMovement(pieceName, legalChar, legalNum, index, legalMoves);
 }
-
 function StopMovement(pieceName, pieceChar, pieceNum, index, legalMoves) {
   switch (pieceName) {
     case "wpawn":
@@ -376,7 +419,8 @@ function StopMovement(pieceName, pieceChar, pieceNum, index, legalMoves) {
       }
       return legalMoves;
       break;
-    case "rook":
+    case "wrook":
+    case "brook":
       //
       //begin rook wall check TODO: make this function AND TODO: make possible to take
       //
@@ -385,43 +429,68 @@ function StopMovement(pieceName, pieceChar, pieceNum, index, legalMoves) {
       const leftRook = horizontalRook.slice(0, index);
       const rightRook = horizontalRook.slice(index);
       const vertical = legalMoves.slice(7);
-      const frontRook = vertical.slice(0, pieceNum - 1);
-      const backRook = vertical.slice(pieceNum - 1);
+      const frontRook = vertical.slice(pieceNum - 1);
+      const backRook = vertical.slice(0, pieceNum - 1);
       let isWallLeft = false;
+      let isFirst = true;
       for (let i = leftRook.length - 1; i >= 0; i--) {
         const leftRookelement = document.getElementById(leftRook[i]);
         for (let j = 0; j < piecesArray.length; j++) {
           if (leftRookelement.classList.contains(piecesArray[j])) {
+            if (isFirst && piecesArray[j].charAt(0) !== pieceName.charAt(0)) {
+              rookResult.push(leftRook[i]);
+              capture.push(leftRook[i]);
+            }
+            isFirst = 0;
             isWallLeft = true;
           }
         }
         if (!isWallLeft) rookResult.push(leftRook[i]);
       }
       let isWallRight = false;
+      isFirst = true;
       for (let i = 0; i < rightRook.length; i++) {
         const rightRookelement = document.getElementById(rightRook[i]);
         for (let j = 0; j < piecesArray.length; j++) {
           if (rightRookelement.classList.contains(piecesArray[j])) {
+            if (isFirst && piecesArray[j].charAt(0) !== pieceName.charAt(0)) {
+              rookResult.push(rightRook[i]);
+              capture.push(rightRook[i]);
+            }
+            isFirst = 0;
             isWallRight = true;
           }
         }
         if (!isWallRight) rookResult.push(rightRook[i]);
       }
       let isWallFront = false;
-      for (let i = frontRook.length - 1; i >= 0; i--) {
+      isFirst = true;
+      for (let i = 0; i < frontRook.length; i++) {
         const FrontRookelement = document.getElementById(frontRook[i]);
         for (let j = 0; j < piecesArray.length; j++) {
           if (FrontRookelement.classList.contains(piecesArray[j])) {
+            if (isFirst && piecesArray[j].charAt(0) !== pieceName.charAt(0)) {
+              rookResult.push(frontRook[i]);
+              capture.push(frontRook[i]);
+            }
+            isFirst = 0;
             isWallFront = true;
           }
         }
         if (!isWallFront) rookResult.push(frontRook[i]);
       }
       let isWallBack = false;
-      for (let i = 0; i < backRook.length; i++) {
+      isFirst = true;
+      for (let i = backRook.length - 1; i >= 0; i--) {
         const BackRookelement = document.getElementById(backRook[i]);
         for (let j = 0; j < piecesArray.length; j++) {
           if (BackRookelement.classList.contains(piecesArray[j])) {
+            if (isFirst && piecesArray[j].charAt(0) !== pieceName.charAt(0)) {
+              rookResult.push(backRook[i]);
+              capture.push(backRook[i]);
+              capture;
+            }
+            isFirst = 0;
             isWallBack = true;
           }
         }
@@ -429,24 +498,49 @@ function StopMovement(pieceName, pieceChar, pieceNum, index, legalMoves) {
       }
       return rookResult;
       break;
-//
-//  end rook part to make function
-//
-      case "bishop":
+    //
+    //  end rook part to make function
+    //
+    case "wbishop":
+    case "bbishop":
       break;
-    case "knight":
+    case "wknight":
+    case "bknight":
+      for (let i = 0; i < legalMoves.length; i++) {
+        for (let j = 0; j < piecesArray.length; j++) {
+          const knightElement = document.getElementById(legalMoves[i]);
+          if (knightElement.classList.contains(piecesArray[j])) {
+            if (piecesArray[j].charAt(0) !== pieceName.charAt(0))
+              capture.push(legalMoves[i]);
+          }
+        }
+      }
+      return CheckForOwnPieces(legalMoves, pieceName);
       break;
-    case "queen":
+    case "wqueen":
+    case "bqueen":
       break;
-    case "king":
+    case "wking":
+    case "bking":
+      for (let i = 0; i < legalMoves.length; i++) {
+        for (let j = 0; j < piecesArray.length; j++) {
+          const kingElement = document.getElementById(legalMoves[i]);
+          if (kingElement.classList.contains(piecesArray[j])) {
+            if (piecesArray[j].charAt(0) !== pieceName.charAt(0))
+              capture.push(legalMoves[i]);
+          }
+        }
+      }
+      return CheckForOwnPieces(legalMoves, pieceName);
       break;
     default:
       break;
   }
 }
 
-function CheckForOwnPieces(legalArray, color) {
+function CheckForOwnPieces(legalArray, pieceName) {
   let checkedArray = [];
+  let color = pieceName.charAt(0) === "w" ? "white" : "black";
   for (let i = 0; i < legalArray.length; i++) {
     const squareToCheck = document.getElementById(legalArray[i]);
     let vacantSpot = true;
