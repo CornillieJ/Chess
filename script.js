@@ -218,12 +218,13 @@ function LegalPawnMoves(piece, color) {
         }
       }
     }
-      if (legalNum === 2) {
-        let legal1 = legalChar + (legalNum + 1);
-        let legal2 = legalChar + (legalNum + 2);
-        legalMoves.push(legal1, legal2);
-      } else if (legalNum === 8) legalMoves.push(legalChar + legalNum);
-      else legalMoves.push(legalChar + (legalNum + 1));
+    if (legalNum === 2) {
+      let legal1 = legalChar + (legalNum + 1);
+      let legal2 = legalChar + (legalNum + 2);
+      legalMoves.push(legal1, legal2);
+    } else if (legalNum === 8) legalMoves.push(legalChar + legalNum);
+    else legalMoves.push(legalChar + (legalNum + 1));
+    return StopMovement("wpawn", legalChar, legalNum, index, legalMoves);
   }
   if (color === "black") {
     let leftFrontId = 0;
@@ -248,19 +249,21 @@ function LegalPawnMoves(piece, color) {
         }
       }
     }
-      if (legalNum === 7) {
-        let legal1 = legalChar + (legalNum - 1);
-        let legal2 = legalChar + (legalNum - 2);
-        legalMoves.push(legal1, legal2);
-      } else if (legalNum === 1) legalMoves.push(legalChar + legalNum);
-      else legalMoves.push(legalChar + (legalNum - 1));
+    if (legalNum === 7) {
+      let legal1 = legalChar + (legalNum - 1);
+      let legal2 = legalChar + (legalNum - 2);
+      legalMoves.push(legal1, legal2);
+    } else if (legalNum === 1) legalMoves.push(legalChar + legalNum);
+    else legalMoves.push(legalChar + (legalNum - 1));
+    return StopMovement("bpawn", legalChar, legalNum, index, legalMoves);
   }
-  return StopMovement("pawn", legalChar, legalNum, index, legalMoves);
 }
+
 function LegalRookMoves(piece, color) {
   let placement = piece.id;
   let legalChar = placement.charAt(0);
   let legalNum = parseInt(placement.slice(1), 10);
+  let index = letters.indexOf(legalChar);
   const legalMoves = [];
   const filteredLetters = letters.filter((letter) => letter !== legalChar);
   const filteredNumbers = numbers.filter((number) => number !== legalNum);
@@ -270,7 +273,7 @@ function LegalRookMoves(piece, color) {
   for (let i = 0; i < filteredNumbers.length; i++) {
     legalMoves.push(legalChar + filteredNumbers[i]);
   }
-  return legalMoves;
+  return StopMovement("rook", legalChar, legalNum, index, legalMoves);
 }
 
 function LegalBishopMoves(piece, color) {
@@ -347,20 +350,89 @@ function LegalKnightMoves(piece, color) {
 
 function StopMovement(pieceName, pieceChar, pieceNum, index, legalMoves) {
   switch (pieceName) {
-    case "pawn":
-      const frontNum = pieceNum === 8 ? 8 : pieceNum + 1;
-      const front = document.getElementById(pieceChar + frontNum);
+    case "wpawn":
+      const frontNumWPawn = pieceNum === 8 ? 8 : pieceNum + 1;
+      const frontWPawn = document.getElementById(pieceChar + frontNumWPawn);
       for (let i = 0; i < piecesArray.length; i++) {
-        if (front.classList.contains(piecesArray[i])){
-          let result = legalMoves.filter(coord => coord !== front.id);
-          return result.filter(coord => coord !== (pieceChar+(frontNum+1)));
+        if (frontWPawn.classList.contains(piecesArray[i])) {
+          let result = legalMoves.filter((coord) => coord !== frontWPawn.id);
+          return result.filter(
+            (coord) => coord !== pieceChar + (frontNumWPawn + 1)
+          );
+        }
+      }
+      return legalMoves;
+      break;
+    case "bpawn":
+      const frontNumBPawn = pieceNum === 8 ? 8 : pieceNum - 1;
+      const frontBPawn = document.getElementById(pieceChar + frontNumBPawn);
+      for (let i = 0; i < piecesArray.length; i++) {
+        if (frontBPawn.classList.contains(piecesArray[i])) {
+          let result = legalMoves.filter((coord) => coord !== frontBPawn.id);
+          return result.filter(
+            (coord) => coord !== pieceChar + (frontNumBPawn - 1)
+          );
         }
       }
       return legalMoves;
       break;
     case "rook":
+      //
+      //begin rook wall check TODO: make this function AND TODO: make possible to take
+      //
+      let rookResult = [];
+      const horizontalRook = legalMoves.slice(0, 7);
+      const leftRook = horizontalRook.slice(0, index);
+      const rightRook = horizontalRook.slice(index);
+      const vertical = legalMoves.slice(7);
+      const frontRook = vertical.slice(0, pieceNum - 1);
+      const backRook = vertical.slice(pieceNum - 1);
+      let isWallLeft = false;
+      for (let i = leftRook.length - 1; i >= 0; i--) {
+        const leftRookelement = document.getElementById(leftRook[i]);
+        for (let j = 0; j < piecesArray.length; j++) {
+          if (leftRookelement.classList.contains(piecesArray[j])) {
+            isWallLeft = true;
+          }
+        }
+        if (!isWallLeft) rookResult.push(leftRook[i]);
+      }
+      let isWallRight = false;
+      for (let i = 0; i < rightRook.length; i++) {
+        const rightRookelement = document.getElementById(rightRook[i]);
+        for (let j = 0; j < piecesArray.length; j++) {
+          if (rightRookelement.classList.contains(piecesArray[j])) {
+            isWallRight = true;
+          }
+        }
+        if (!isWallRight) rookResult.push(rightRook[i]);
+      }
+      let isWallFront = false;
+      for (let i = frontRook.length - 1; i >= 0; i--) {
+        const FrontRookelement = document.getElementById(frontRook[i]);
+        for (let j = 0; j < piecesArray.length; j++) {
+          if (FrontRookelement.classList.contains(piecesArray[j])) {
+            isWallFront = true;
+          }
+        }
+        if (!isWallFront) rookResult.push(frontRook[i]);
+      }
+      let isWallBack = false;
+      for (let i = 0; i < backRook.length; i++) {
+        const BackRookelement = document.getElementById(backRook[i]);
+        for (let j = 0; j < piecesArray.length; j++) {
+          if (BackRookelement.classList.contains(piecesArray[j])) {
+            isWallBack = true;
+          }
+        }
+        if (!isWallBack) rookResult.push(backRook[i]);
+      }
+      return rookResult;
       break;
-    case "bishop":
+//
+//  end rook part to make function
+//
+      case "bishop":
       break;
     case "knight":
       break;
@@ -378,7 +450,6 @@ function CheckForOwnPieces(legalArray, color) {
   for (let i = 0; i < legalArray.length; i++) {
     const squareToCheck = document.getElementById(legalArray[i]);
     let vacantSpot = true;
-    console.log(legalArray);
     if (color === "white") {
       for (let j = 0; j < whitePiecesArray.length; j++) {
         if (squareToCheck.classList.contains(whitePiecesArray[j])) {
