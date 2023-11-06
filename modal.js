@@ -24,7 +24,7 @@ function CloseWin() {
   overlay.classList.add('invisible');
 }
 
-buttonReset.addEventListener('click', ResetAllTdsToInitialState);
+buttonReset.addEventListener('click', Reset);
 buttonFlip.addEventListener('click', SwitchBoard);
 
 player2Mode.addEventListener('click', ()=>{

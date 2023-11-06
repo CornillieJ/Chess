@@ -59,6 +59,7 @@ td{
   width: 12.5%;
   border: 1px solid black;
   position: relative;
+  transform: rotate(0deg);
 }
 
 .invisible{
@@ -149,15 +150,11 @@ td{
   transition: transform 1s;
 }
 .rotated-full{
-  transform: rotate(360deg);
+  transform: rotate(0deg);
   transition: transform 1s;
 }
 .rotated-cells{
   transform: rotate(180deg);
-  transition-delay: 0.3s;
-}
-.rotated-full-cells{
-  transform: rotate(360deg);
   transition-delay: 0.3s;
 }
 @media screen and (max-width: 720px) {
