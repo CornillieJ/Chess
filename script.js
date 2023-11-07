@@ -168,7 +168,6 @@ function MovePieces(square) {
   Update();
 }
 function checkWin() {
-  
   whiteWinCheck = false;
   blackWinCheck = false;
   // squares.forEach((square) => {
@@ -203,7 +202,13 @@ function CopyClasses(from, to) {
 function HideLegalMoves(square) {
   square.classList.remove("legal");
 }
-
+function ChangeLegalMovesIfCheck(movesArray) {
+  if (isWhiteTurn && wcheck) {
+    
+  }
+  if (!isWhiteTurn && bcheck) {
+  }
+}
 function ShowLegalMoves(piece) {
   if (piece.classList.contains("wpawn")) Moves("wpawn", piece, "Show");
   if (piece.classList.contains("bpawn")) Moves("bpawn", piece, "Show");
@@ -236,10 +241,11 @@ function ShowCheck() {
   wNowhereToGo = false;
   bNowhereToGo = false;
   allPieces.forEach((piece) => {
-    if(piece.classList.contains('wking')) {
-      watchKingMoves('wking', piece);
+    piece.classList.remove('attacker')
+    if (piece.classList.contains("wking")) {
+      watchKingMoves("wking", piece);
       {
-        wcheck = CheckForCheck(piece, "", true);
+        wcheck = CheckForCheck(piece, "", true,true);
         if (wcheck) {
           piece.classList.add("check");
         }
@@ -248,10 +254,10 @@ function ShowCheck() {
         }
       }
     }
-    if(piece.classList.contains('bking')){
-      watchKingMoves('bking', piece);
+    if (piece.classList.contains("bking")) {
+      watchKingMoves("bking", piece);
       {
-        bcheck = CheckForCheck(piece, "", true);
+        bcheck = CheckForCheck(piece, "", true,true);
         if (bcheck) {
           piece.classList.add("check");
         }
@@ -259,45 +265,46 @@ function ShowCheck() {
           piece.classList.remove("check");
         }
       }
-    } 
+    }
   });
 }
-function CheckForCheck(square, colorOverride, checking) {
+function CheckForCheck(square, colorOverride, checking, attacked) {
   if (colorOverride == "white" || colorOverride === "black") checking = true;
   if (square.classList.contains("wking") || colorOverride === "white") {
-    if (CheckCheck(square, "wpawn", "bpawn", checking)) return true;
-    if (CheckCheck(square, "wrook", "brook", checking)) return true;
-    if (CheckCheck(square, "wbishop", "bbishop", checking)) return true;
-    if (CheckCheck(square, "wknight", "bknight", checking)) return true;
-    if (CheckCheck(square, "wqueen", "bqueen", checking)) return true;
-    if (CheckCheck(square, "king", "bking", checking)) return true;
+    if (CheckCheck(square, "wpawn", "bpawn", checking, attacked)) return true;
+    if (CheckCheck(square, "wrook", "brook", checking, attacked)) return true;
+    if (CheckCheck(square, "wbishop", "bbishop", checking, attacked)) return true;
+    if (CheckCheck(square, "wknight", "bknight", checking, attacked)) return true;
+    if (CheckCheck(square, "wqueen", "bqueen", checking, attacked)) return true;
+    if (CheckCheck(square, "king", "bking", checking, attacked)) return true;
   }
   if (square.classList.contains("bking") || colorOverride === "black") {
-    if (CheckCheck(square, "bpawn", "wpawn", checking)) return true;
-    if (CheckCheck(square, "brook", "wrook", checking)) return true;
-    if (CheckCheck(square, "bbishop", "wbishop", checking)) return true;
-    if (CheckCheck(square, "bknight", "wknight", checking)) return true;
-    if (CheckCheck(square, "bqueen", "wqueen", checking)) return true;
-    if (CheckCheck(square, "king", "wking", checking)) return true;
+    if (CheckCheck(square, "bpawn", "wpawn", checking, attacked)) return true;
+    if (CheckCheck(square, "brook", "wrook", checking, attacked)) return true;
+    if (CheckCheck(square, "bbishop", "wbishop", checking, attacked)) return true;
+    if (CheckCheck(square, "bknight", "wknight", checking, attacked)) return true;
+    if (CheckCheck(square, "bqueen", "wqueen", checking, attacked)) return true;
+    if (CheckCheck(square, "king", "wking", checking, attacked)) return true;
   }
   return false;
 }
 
-function CheckCheck(square, movetype, pieceToCheckFor, checking) {
+function CheckCheck(square, movetype, pieceToCheckFor, checking, attacked) {
   const toCheckArray = GetLegalMoves(square, movetype, checking);
   for (let i = 0; i < toCheckArray.length; i++) {
     const toCheck = document.getElementById(toCheckArray[i]);
     if (toCheck.classList.contains(pieceToCheckFor)) {
+      if(attacked)toCheck.classList.add('attacker');
       return true;
     }
   }
   return false;
 }
-function watchKingMoves(pieceName, input, showHide){
+function watchKingMoves(pieceName, input, showHide) {
   let legalCoords = GetLegalMoves(input, pieceName);
-  if ((pieceName === "wking" && legalCoords.length === 0)) {
+  if (pieceName === "wking" && legalCoords.length === 0) {
     wNowhereToGo = true;
-  }else if ((pieceName === "bking" && legalCoords.length === 0)) {
+  } else if (pieceName === "bking" && legalCoords.length === 0) {
     bNowhereToGo = true;
   }
 }
