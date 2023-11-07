@@ -59,10 +59,13 @@ const numbers = [1, 2, 3, 4, 5, 6, 7, 8];
 let previousId = 0;
 let capture = [];
 let isWhiteTurn = true;
-let check = false;
+let wcheck = false;
+let bcheck = false;
 let checked = false;
 let whiteWinCheck = 0;
 let blackWinCheck = 0;
+let wNowhereToGo = false;
+let bNowhereToGo = false;
 let switched = false;
 let isWCastlingPossibleH = true;
 let isWCastlingPossibleA = true;
@@ -154,7 +157,6 @@ function MovePieces(square) {
     moved = true;
     Castling(kingName, square);
     showToMoveText(isWhiteTurn);
-    checkWin();
     if (isPlayer2) SwitchBoard();
   } else {
     previousId !== 0 ? previous.classList.remove("selected") : undefined;
@@ -166,12 +168,19 @@ function MovePieces(square) {
   Update();
 }
 function checkWin() {
-  whiteWinCheck = true;
-  blackWinCheck = true;
-  squares.forEach((square) => {
-    if (square.classList.contains("bking")) whiteWinCheck = false;
-    if (square.classList.contains("wking")) blackWinCheck = false;
-  });
+  
+  whiteWinCheck = false;
+  blackWinCheck = false;
+  // squares.forEach((square) => {
+  //   if (square.classList.contains("bking")) whiteWinCheck = false;
+  //   if (square.classList.contains("wking")) blackWinCheck = false;
+  // });
+  if (wcheck) {
+    if (wNowhereToGo) blackWinCheck = true;
+  }
+  if (bcheck) {
+    if (bNowhereToGo) whiteWinCheck = true;
+  }
   if (whiteWinCheck) {
     centerText.textContent = "White Wins";
     win.classList.remove("invisible");
@@ -224,21 +233,37 @@ function HideCaptureMoves() {
   }
 }
 function ShowCheck() {
+  wNowhereToGo = false;
+  bNowhereToGo = false;
   allPieces.forEach((piece) => {
-    if (
-      piece.classList.contains("bking") ||
-      piece.classList.contains("wking")
-    ) {
-      let check = CheckForCheck(piece, "", true);
-      if (check) piece.classList.add("check");
-      if (!check) {
-        piece.classList.remove("check");
+    if(piece.classList.contains('wking')) {
+      watchKingMoves('wking', piece);
+      {
+        wcheck = CheckForCheck(piece, "", true);
+        if (wcheck) {
+          piece.classList.add("check");
+        }
+        if (!wcheck) {
+          piece.classList.remove("check");
+        }
       }
     }
+    if(piece.classList.contains('bking')){
+      watchKingMoves('bking', piece);
+      {
+        bcheck = CheckForCheck(piece, "", true);
+        if (bcheck) {
+          piece.classList.add("check");
+        }
+        if (!bcheck) {
+          piece.classList.remove("check");
+        }
+      }
+    } 
   });
 }
 function CheckForCheck(square, colorOverride, checking) {
-  if (colorOverride == 'white' || colorOverride === "black") checking = true;
+  if (colorOverride == "white" || colorOverride === "black") checking = true;
   if (square.classList.contains("wking") || colorOverride === "white") {
     if (CheckCheck(square, "wpawn", "bpawn", checking)) return true;
     if (CheckCheck(square, "wrook", "brook", checking)) return true;
@@ -268,10 +293,17 @@ function CheckCheck(square, movetype, pieceToCheckFor, checking) {
   }
   return false;
 }
+function watchKingMoves(pieceName, input, showHide){
+  let legalCoords = GetLegalMoves(input, pieceName);
+  if ((pieceName === "wking" && legalCoords.length === 0)) {
+    wNowhereToGo = true;
+  }else if ((pieceName === "bking" && legalCoords.length === 0)) {
+    bNowhereToGo = true;
+  }
+}
 
 function Moves(pieceName, input, showHide) {
   let legalCoords = GetLegalMoves(input, pieceName);
-
   for (let i = 0; i < legalCoords.length; i++) {
     if (showHide == "Show") {
       document.getElementById(legalCoords[i]).classList.add("legal");
@@ -316,8 +348,7 @@ function RemoveStepIntoCheck(array, pieceName, colorOverride) {
   let toReturn = [];
   for (let i = 0; i < array.length; i++) {
     const element = document.getElementById(array[i]);
-    if (!CheckForCheck(element, colorOverride, true))
-    toReturn.push(array[i]);
+    if (!CheckForCheck(element, colorOverride, true)) toReturn.push(array[i]);
   }
   return toReturn;
 }
@@ -922,7 +953,8 @@ function Reset() {
   previousId = 0;
   capture = [];
   isWhiteTurn = true;
-  check = false;
+  wcheck = false;
+  bcheck = false;
   checked = false;
   whiteWinCheck = 0;
   blackWinCheck = 0;
@@ -965,6 +997,7 @@ squares.forEach((square) => {
   square.addEventListener("click", () => {
     MovePieces(square);
     ShowCheck();
+    checkWin();
   });
 });
 
