@@ -278,6 +278,16 @@ tr.odd td:nth-child(2n){
   background-position: center;
   background-size: contain;
 }
+.attacker::before{
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(200, 0, 27, 0.508);
+  z-index: 1;
+}
 
 
 .selected::before {
@@ -290,6 +300,7 @@ tr.odd td:nth-child(2n){
   background-color: rgba(0, 229, 255, 0.519);
   z-index: 1;
 }
+
 .legal::before {
     content: '';
     position: absolute;
