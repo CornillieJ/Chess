@@ -183,10 +183,10 @@ function checkWin() {
   //   if (square.classList.contains("wking")) blackWinCheck = false;
   // });
   if (wcheck) {
-    if (wNowhereToGo && AreLegalMovesLeft("white")) blackWinCheck = true;
+    if (wNowhereToGo && !AreLegalMovesLeft("white")) blackWinCheck = true;
   }
   if (bcheck) {
-    if (bNowhereToGo && AreLegalMovesLeft("black")) whiteWinCheck = true;
+    if (bNowhereToGo && !AreLegalMovesLeft("black")) whiteWinCheck = true;
   }
   if (whiteWinCheck) {
     centerText.textContent = "White Wins";
@@ -300,14 +300,14 @@ function ShowLegalMoves(piece, showHide) {
   return count;
 }
 function ShowCaptureMoves() {
-  if (capture.length > 0) {
+  if (capture.length > 0 && capture !== undefined) {
     for (let i = 0; i < capture.length; i++) {
       document.getElementById(capture[i]).classList.add("capture");
     }
   }
 }
 function HideCaptureMoves() {
-  if (capture.length > 0) {
+  if (capture.length > 0 && capture !== undefined) {
     for (let i = 0; i < capture.length; i++) {
       document.getElementById(capture[i]).classList.remove("capture");
     }
