@@ -231,6 +231,15 @@ function ChangeLegalMovesIfCheck(piece, movesArray, showingCheck) {
           tempCheckElement.className = tempclassName;
       }
       doneCheckingForMoves = true;
+      let captureNew=[];
+      for (let i = 0; i < capture.length; i++) {
+        for (let j = 0; j < filteredLegalMoves.length; j++) {
+          if (capture[i] === filteredLegalMoves[j]) 
+          captureNew.push(filteredLegalMoves[i]);
+        }
+      }
+      capture = captureNew;
+      doneCheckingForMoves = true;
       return filteredLegalMoves;
     } else if (!isWhiteTurn && bcheck) {
       for (let i = 0; i < movesArray.length; i++) {
@@ -249,6 +258,14 @@ function ChangeLegalMovesIfCheck(piece, movesArray, showingCheck) {
           });
           tempCheckElement.className = tempclassName;
       }
+      let captureNew=[];
+      for (let i = 0; i < capture.length; i++) {
+        for (let j = 0; j < filteredLegalMoves.length; j++) {
+          if (capture[i] === filteredLegalMoves[j]) 
+          captureNew.push(filteredLegalMoves[i]);
+        }
+      }
+      capture = captureNew;
       doneCheckingForMoves = true;
       return filteredLegalMoves;
     } else return movesArray;
@@ -1095,13 +1112,31 @@ function GetTrueMoves(
       }
       return CheckForOwnPieces(legalMoves, pieceName, checking);
     case "wking":
+      for (let i = 0; i < legalMoves.length; i++) {
+        const kingElement = document.getElementById(legalMoves[i]);
+        for (let j = 0; j < piecesArray.length; j++) {
+          if (kingElement.classList.contains(piecesArray[j])) {
+            if (piecesArray[j].charAt(0) !== pieceName.charAt(0))
+              if (!checking) {
+                if(!CheckForCheck(pieceForCheck,'',true,true,false,false))
+                  capture.push(legalMoves[i])
+              };
+          }
+        }
+      }
+      AddCastling(pieceName, legalMoves, true);
+      return CheckForOwnPieces(legalMoves, pieceName);
+      break;
     case "bking":
       for (let i = 0; i < legalMoves.length; i++) {
         const kingElement = document.getElementById(legalMoves[i]);
         for (let j = 0; j < piecesArray.length; j++) {
           if (kingElement.classList.contains(piecesArray[j])) {
             if (piecesArray[j].charAt(0) !== pieceName.charAt(0))
-              if (!checking) capture.push(legalMoves[i]);
+              if (!checking) {
+                if(!CheckForCheck(pieceForCheck,'',true,true,false,false))
+                  capture.push(legalMoves[i])
+              };
           }
         }
       }
