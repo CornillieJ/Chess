@@ -3,7 +3,7 @@
 ///////////////////////////////////
 ///////////variables///////////////
 ///////-----------------///////////
-
+let checkingwin = false;
 let initialTdClasses = [];
 const table = document.querySelector("table");
 const tableCells = document.querySelectorAll("td");
@@ -14,10 +14,10 @@ tableCells.forEach((cell) => {
 let allPieces = document.querySelectorAll(
   ".bpawn, .brook, .bbishop, .bknight, .bqueen, .bking, .wpawn, .wrook, .wbishop, .wknight, .wqueen, .wking"
 );
-let blackPieces = document.querySelectorAll(
+let whitePieces = document.querySelectorAll(
   ".wpawn, .wrook, .wbishop, .wknight, .wqueen, .wking"
 );
-let whitePieces = document.querySelectorAll(
+let blackPieces = document.querySelectorAll(
   ".bpawn, .brook, .bbishop, .bknight, .bqueen, .bking"
 );
 let squares = document.querySelectorAll("td");
@@ -176,17 +176,22 @@ function MovePieces(square) {
   Update();
 }
 function checkWin() {
+  checkingwin = true;
   whiteWinCheck = false;
   blackWinCheck = false;
+  let tempClick = clicked;
   // squares.forEach((square) => {
   //   if (square.classList.contains("bking")) whiteWinCheck = false;
   //   if (square.classList.contains("wking")) blackWinCheck = false;
   // });
+  const numberOfLegalWhiteMoves = NumberOfLegalMovesLeft("white",clicked);
+  const numberOfLegalBlackMoves = NumberOfLegalMovesLeft("black",clicked);
+
   if (wcheck) {
-    if (wNowhereToGo && !AreLegalMovesLeft("white")) blackWinCheck = true;
+    if (wNowhereToGo && numberOfLegalWhiteMoves === 0) blackWinCheck = true;
   }
   if (bcheck) {
-    if (bNowhereToGo && !AreLegalMovesLeft("black")) whiteWinCheck = true;
+    if (bNowhereToGo && numberOfLegalBlackMoves=== 0) whiteWinCheck = true;
   }
   if (whiteWinCheck) {
     centerText.textContent = "White Wins";
@@ -198,6 +203,10 @@ function checkWin() {
     win.classList.remove("invisible");
     overlay.classList.remove("invisible");
   }
+  
+  clicked = tempClick;
+  
+  checkingwin = false;
 }
 function CopyClasses(from, to) {
   to.classList = [];
@@ -255,7 +264,7 @@ function ChangeLegalMovesIfCheck(piece, movesArray, showingCheck) {
         }
         if (!tempCheckElement.classList.contains("attacker"))
           tempCheckElement.className = piece.className;
-        allPieces.forEach((piece2) => {
+        whitePieces.forEach((piece2) => {
           if (piece2.classList.contains("wking"))
             if (!CheckForCheck(piece2, "", true, true, true))
               filteredLegalMoves.push(movesArray[i]);
@@ -283,7 +292,7 @@ function ChangeLegalMovesIfCheck(piece, movesArray, showingCheck) {
         }
         if (!tempCheckElement.classList.contains("attacker"))
           tempCheckElement.className = piece.className;
-        allPieces.forEach((piece2) => {
+        blackPieces.forEach((piece2) => {
           if (piece2.classList.contains("bking"))
             if (!CheckForCheck(piece2, "", true, true, true))
               filteredLegalMoves.push(movesArray[i]);
@@ -591,8 +600,9 @@ function GetLegalMoves(
         checking,
         fixingCheck
       );
-      if (!doneCheckingForMoves) {
-        let tempArray = ChangeLegalMovesIfCheck(
+      if ((!doneCheckingForMoves &&(wcheck || bcheck))||
+      checkingwin) {
+        return ChangeLegalMovesIfCheck(
           input,
           legalPawnMoves,
           showingCheck
@@ -609,24 +619,24 @@ function GetLegalMoves(
         fixingCheck
       );
       if (!doneCheckingForMoves) {
-        let tempArray = ChangeLegalMovesIfCheck(
+        return ChangeLegalMovesIfCheck(
           input,
           legalRookMoves,
           showingCheck
         );
-        changeLegalMovesIfSteppingIntoCheck(input, tempArray);
+        //changeLegalMovesIfSteppingIntoCheck(input, tempArray);
       }
       return changeLegalMovesIfSteppingIntoCheck(input, legalRookMoves);
     case "wbishop":
     case "bbishop":
       const legalBishopMoves = LegalBishopMoves(input, pieceName, checking);
       if (!doneCheckingForMoves) {
-        let tempArray = ChangeLegalMovesIfCheck(
+        return ChangeLegalMovesIfCheck(
           input,
           legalBishopMoves,
           showingCheck
         );
-        changeLegalMovesIfSteppingIntoCheck(input, tempArray);
+        //changeLegalMovesIfSteppingIntoCheck(input, tempArray);
       }
       return changeLegalMovesIfSteppingIntoCheck(input, legalBishopMoves);
     case "wknight":
@@ -638,12 +648,12 @@ function GetLegalMoves(
         fixingCheck
       );
       if (!doneCheckingForMoves) {
-        let tempArray = ChangeLegalMovesIfCheck(
+        return ChangeLegalMovesIfCheck(
           input,
           legalKnightMoves,
           showingCheck
         );
-        changeLegalMovesIfSteppingIntoCheck(input, tempArray);
+        //changeLegalMovesIfSteppingIntoCheck(input, tempArray);
       }
       return changeLegalMovesIfSteppingIntoCheck(input, legalKnightMoves);
     case "wqueen":
@@ -655,12 +665,12 @@ function GetLegalMoves(
         fixingCheck
       );
       if (!doneCheckingForMoves) {
-        let tempArray = ChangeLegalMovesIfCheck(
+        return  ChangeLegalMovesIfCheck(
           input,
           legalQueenMoves,
           showingCheck
         );
-        changeLegalMovesIfSteppingIntoCheck(input, tempArray);
+        //changeLegalMovesIfSteppingIntoCheck(input, tempArray);
       }
       return changeLegalMovesIfSteppingIntoCheck(input, legalQueenMoves);
     case "wking":
@@ -1310,19 +1320,21 @@ function CheckForOwnPieces(legalArray, pieceName) {
   return checkedArray;
 }
 
-function AreLegalMovesLeft(color) {
+function NumberOfLegalMovesLeft(color) {
+  let movesLeft = 0;
   if (color === "white") {
     whitePieces.forEach((piece) => {
-      if (ShowLegalMoves(piece) === 0) return false;
-      else return true;
+    clicked = piece;
+      if (ShowLegalMoves(piece) > 0) movesLeft++;
     });
   }
   if (color === "black") {
     blackPieces.forEach((piece) => {
-      if (ShowLegalMoves(piece) === 0) return false;
-      else return true;
+    clicked = piece;
+      if (ShowLegalMoves(piece) > 0) movesLeft++;
     });
   }
+  return movesLeft;
 }
 
 function Reset() {
@@ -1381,11 +1393,12 @@ function SwitchBoard() {
 squares.forEach((square) => {
   square.addEventListener("click", () => {
     clicked = square;
+    doneCheckingForMoves = false;
     MovePieces(square);
     doneCheckingForMoves = true;
     ShowCheck("", false, true);
-    checkWin();
     doneCheckingForMoves = false;
+    checkWin();
   });
 });
 
