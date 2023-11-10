@@ -1,5 +1,10 @@
 "use strict";
+//TODO: Add history
 
+let history = [];
+let currentSituation = [];
+let currentIndex = 0;
+let shownIndex = 0;
 ///////////////////////////////////
 ///////////variables///////////////
 ///////-----------------///////////
@@ -10,7 +15,6 @@ const tableCells = document.querySelectorAll("td");
 tableCells.forEach((cell) => {
   initialTdClasses.push({ element: cell, class: cell.className });
 });
-
 let allPieces = document.querySelectorAll(
   ".bpawn, .brook, .bbishop, .bknight, .bqueen, .bking, .wpawn, .wrook, .wbishop, .wknight, .wqueen, .wking"
 );
@@ -136,6 +140,7 @@ function selectPieces(squares, square) {
     }
   } else {
     moved = false;
+    saveSituationToHistory();
   }
 }
 
@@ -184,14 +189,14 @@ function checkWin() {
   //   if (square.classList.contains("bking")) whiteWinCheck = false;
   //   if (square.classList.contains("wking")) blackWinCheck = false;
   // });
-  const numberOfLegalWhiteMoves = NumberOfLegalMovesLeft("white",clicked);
-  const numberOfLegalBlackMoves = NumberOfLegalMovesLeft("black",clicked);
+  const numberOfLegalWhiteMoves = NumberOfLegalMovesLeft("white", clicked);
+  const numberOfLegalBlackMoves = NumberOfLegalMovesLeft("black", clicked);
 
   if (wcheck) {
     if (wNowhereToGo && numberOfLegalWhiteMoves === 0) blackWinCheck = true;
   }
   if (bcheck) {
-    if (bNowhereToGo && numberOfLegalBlackMoves=== 0) whiteWinCheck = true;
+    if (bNowhereToGo && numberOfLegalBlackMoves === 0) whiteWinCheck = true;
   }
   if (whiteWinCheck) {
     centerText.textContent = "White Wins";
@@ -203,9 +208,9 @@ function checkWin() {
     win.classList.remove("invisible");
     overlay.classList.remove("invisible");
   }
-  
+
   clicked = tempClick;
-  
+
   checkingwin = false;
 }
 function CopyClasses(from, to) {
@@ -600,13 +605,8 @@ function GetLegalMoves(
         checking,
         fixingCheck
       );
-      if ((!doneCheckingForMoves &&(wcheck || bcheck))||
-      checkingwin) {
-        return ChangeLegalMovesIfCheck(
-          input,
-          legalPawnMoves,
-          showingCheck
-        );
+      if ((!doneCheckingForMoves && (wcheck || bcheck)) || checkingwin) {
+        return ChangeLegalMovesIfCheck(input, legalPawnMoves, showingCheck);
         changeLegalMovesIfSteppingIntoCheck(input, tempArray);
       }
       return changeLegalMovesIfSteppingIntoCheck(input, legalPawnMoves);
@@ -619,11 +619,7 @@ function GetLegalMoves(
         fixingCheck
       );
       if (!doneCheckingForMoves) {
-        return ChangeLegalMovesIfCheck(
-          input,
-          legalRookMoves,
-          showingCheck
-        );
+        return ChangeLegalMovesIfCheck(input, legalRookMoves, showingCheck);
         //changeLegalMovesIfSteppingIntoCheck(input, tempArray);
       }
       return changeLegalMovesIfSteppingIntoCheck(input, legalRookMoves);
@@ -631,11 +627,7 @@ function GetLegalMoves(
     case "bbishop":
       const legalBishopMoves = LegalBishopMoves(input, pieceName, checking);
       if (!doneCheckingForMoves) {
-        return ChangeLegalMovesIfCheck(
-          input,
-          legalBishopMoves,
-          showingCheck
-        );
+        return ChangeLegalMovesIfCheck(input, legalBishopMoves, showingCheck);
         //changeLegalMovesIfSteppingIntoCheck(input, tempArray);
       }
       return changeLegalMovesIfSteppingIntoCheck(input, legalBishopMoves);
@@ -648,11 +640,7 @@ function GetLegalMoves(
         fixingCheck
       );
       if (!doneCheckingForMoves) {
-        return ChangeLegalMovesIfCheck(
-          input,
-          legalKnightMoves,
-          showingCheck
-        );
+        return ChangeLegalMovesIfCheck(input, legalKnightMoves, showingCheck);
         //changeLegalMovesIfSteppingIntoCheck(input, tempArray);
       }
       return changeLegalMovesIfSteppingIntoCheck(input, legalKnightMoves);
@@ -665,11 +653,7 @@ function GetLegalMoves(
         fixingCheck
       );
       if (!doneCheckingForMoves) {
-        return  ChangeLegalMovesIfCheck(
-          input,
-          legalQueenMoves,
-          showingCheck
-        );
+        return ChangeLegalMovesIfCheck(input, legalQueenMoves, showingCheck);
         //changeLegalMovesIfSteppingIntoCheck(input, tempArray);
       }
       return changeLegalMovesIfSteppingIntoCheck(input, legalQueenMoves);
@@ -1324,13 +1308,13 @@ function NumberOfLegalMovesLeft(color) {
   let movesLeft = 0;
   if (color === "white") {
     whitePieces.forEach((piece) => {
-    clicked = piece;
+      clicked = piece;
       if (ShowLegalMoves(piece) > 0) movesLeft++;
     });
   }
   if (color === "black") {
     blackPieces.forEach((piece) => {
-    clicked = piece;
+      clicked = piece;
       if (ShowLegalMoves(piece) > 0) movesLeft++;
     });
   }
@@ -1360,6 +1344,9 @@ function Reset() {
   kingName = 0;
   clicked = 0;
   doneCheckingForMoves = 0;
+  history = [];
+  currentIndex = 0;
+  shownIndex = 0;
 }
 
 function SwitchBoard() {
@@ -1383,6 +1370,34 @@ function SwitchBoard() {
     switched = false;
   }
 }
+
+function FillCurrentSituation() {
+  squares.forEach((square) => {
+    currentSituation.push(square.className);
+  });
+}
+
+function saveSituationToHistory() {
+  currentIndex++;
+  currentSituation=[];
+  squares.forEach((square) => {
+    currentSituation.push(square.className);
+  });
+  history[currentIndex]=currentSituation;
+  // shownIndex++;
+}
+function GoBackInHistory() {
+  // if (shownIndex > 0) shownIndex--;
+  if (currentIndex > 0) currentIndex--;
+  let i = 0;
+  // const newSituation = history[shownIndex];
+  const newSituation = history[currentIndex];
+  squares.forEach((square) => {
+    square.className = newSituation[i];
+    i++;
+  });
+  isWhiteTurn = !isWhiteTurn;
+}
 ///////-----------------///////////
 ///////////functions///////////////
 ///////////////////////////////////
@@ -1392,6 +1407,7 @@ function SwitchBoard() {
 ///////-----------------///////////
 squares.forEach((square) => {
   square.addEventListener("click", () => {
+    FillCurrentSituation();
     clicked = square;
     doneCheckingForMoves = false;
     MovePieces(square);
@@ -1408,6 +1424,9 @@ document.addEventListener("keydown", function (e) {
   }
   if (e.key === "f" || e.key === "F") {
     SwitchBoard();
+  }
+  if (e.key === "o" || e.ke === "O") {
+    GoBackInHistory();
   }
 });
 
