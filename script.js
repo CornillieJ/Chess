@@ -210,13 +210,45 @@ function CopyClasses(from, to) {
 function HideLegalMoves(square) {
   square.classList.remove("legal");
 }
+function changeLegalMovesIfSteppingIntoCheck(piece, movesArray) {
+  if (piece === clicked) {
+    const filteredLegalMoves = [];
+    const tempfromClassName = piece.className;
+    piece.className = 0;
+    if (isWhiteTurn) {
+      for (let i = 0; i < movesArray.length; i++) {
+        allPieces.forEach((piece2) => {
+          if (piece2.classList.contains("wking"))
+            if (CheckForCheck(piece2, "white", true, true, true)) {
+              piece.className = tempfromClassName;
+              return (movesArray = []);
+            }
+        });
+      }
+    }
+    if (!isWhiteTurn) {
+      for (let i = 0; i < movesArray.length; i++) {
+        allPieces.forEach((piece2) => {
+          if (piece2.classList.contains("bking"))
+            if (CheckForCheck(piece2, "black", true, true, true)) {
+              piece.className = tempfromClassName;
+              return (movesArray = []);
+            }
+        });
+      }
+    }
+    piece.className = tempfromClassName;
+    return movesArray;
+  }
+  return movesArray;
+}
 function ChangeLegalMovesIfCheck(piece, movesArray, showingCheck) {
   const filteredLegalMoves = [];
   if ((piece === clicked) & !showingCheck) {
     if (isWhiteTurn && wcheck) {
       for (let i = 0; i < movesArray.length; i++) {
         const tempCheckElement = document.getElementById(movesArray[i]);
-        const tempclassName = tempCheckElement.className;
+        const tempToClassName = tempCheckElement.className;
         if (tempCheckElement.classList.contains("attacker")) {
           filteredLegalMoves.push(movesArray[i]);
           break;
@@ -227,15 +259,15 @@ function ChangeLegalMovesIfCheck(piece, movesArray, showingCheck) {
           if (piece2.classList.contains("wking"))
             if (!CheckForCheck(piece2, "", true, true, true))
               filteredLegalMoves.push(movesArray[i]);
-          });
-          tempCheckElement.className = tempclassName;
+        });
+        tempCheckElement.className = tempToClassName;
       }
       doneCheckingForMoves = true;
-      let captureNew=[];
+      let captureNew = [];
       for (let i = 0; i < capture.length; i++) {
         for (let j = 0; j < filteredLegalMoves.length; j++) {
-          if (capture[i] === filteredLegalMoves[j]) 
-          captureNew.push(filteredLegalMoves[i]);
+          if (capture[i] === filteredLegalMoves[j])
+            captureNew.push(filteredLegalMoves[i]);
         }
       }
       capture = captureNew;
@@ -244,7 +276,7 @@ function ChangeLegalMovesIfCheck(piece, movesArray, showingCheck) {
     } else if (!isWhiteTurn && bcheck) {
       for (let i = 0; i < movesArray.length; i++) {
         const tempCheckElement = document.getElementById(movesArray[i]);
-        const tempclassName = tempCheckElement.className;
+        const tempToClassName = tempCheckElement.className;
         if (tempCheckElement.classList.contains("attacker")) {
           filteredLegalMoves.push(movesArray[i]);
           break;
@@ -255,14 +287,14 @@ function ChangeLegalMovesIfCheck(piece, movesArray, showingCheck) {
           if (piece2.classList.contains("bking"))
             if (!CheckForCheck(piece2, "", true, true, true))
               filteredLegalMoves.push(movesArray[i]);
-          });
-          tempCheckElement.className = tempclassName;
+        });
+        tempCheckElement.className = tempToClassName;
       }
-      let captureNew=[];
+      let captureNew = [];
       for (let i = 0; i < capture.length; i++) {
         for (let j = 0; j < filteredLegalMoves.length; j++) {
-          if (capture[i] === filteredLegalMoves[j]) 
-          captureNew.push(filteredLegalMoves[i]);
+          if (capture[i] === filteredLegalMoves[j])
+            captureNew.push(filteredLegalMoves[i]);
         }
       }
       capture = captureNew;
@@ -559,9 +591,15 @@ function GetLegalMoves(
         checking,
         fixingCheck
       );
-      if (!doneCheckingForMoves)
-        return ChangeLegalMovesIfCheck(input, legalPawnMoves, showingCheck);
-      return legalPawnMoves;
+      if (!doneCheckingForMoves) {
+        let tempArray = ChangeLegalMovesIfCheck(
+          input,
+          legalPawnMoves,
+          showingCheck
+        );
+        changeLegalMovesIfSteppingIntoCheck(input, tempArray);
+      }
+      return changeLegalMovesIfSteppingIntoCheck(input, legalPawnMoves);
     case "wrook":
     case "brook":
       const legalRookMoves = LegalRookMoves(
@@ -570,15 +608,27 @@ function GetLegalMoves(
         checking,
         fixingCheck
       );
-      if (!doneCheckingForMoves)
-        return ChangeLegalMovesIfCheck(input, legalRookMoves, showingCheck);
-      return legalRookMoves;
+      if (!doneCheckingForMoves) {
+        let tempArray = ChangeLegalMovesIfCheck(
+          input,
+          legalRookMoves,
+          showingCheck
+        );
+        changeLegalMovesIfSteppingIntoCheck(input, tempArray);
+      }
+      return changeLegalMovesIfSteppingIntoCheck(input, legalRookMoves);
     case "wbishop":
     case "bbishop":
       const legalBishopMoves = LegalBishopMoves(input, pieceName, checking);
-      if (!doneCheckingForMoves)
-        return ChangeLegalMovesIfCheck(input, legalBishopMoves, showingCheck);
-      return legalBishopMoves;
+      if (!doneCheckingForMoves) {
+        let tempArray = ChangeLegalMovesIfCheck(
+          input,
+          legalBishopMoves,
+          showingCheck
+        );
+        changeLegalMovesIfSteppingIntoCheck(input, tempArray);
+      }
+      return changeLegalMovesIfSteppingIntoCheck(input, legalBishopMoves);
     case "wknight":
     case "bknight":
       const legalKnightMoves = LegalKnightMoves(
@@ -587,9 +637,15 @@ function GetLegalMoves(
         checking,
         fixingCheck
       );
-      if (!doneCheckingForMoves)
-        return ChangeLegalMovesIfCheck(input, legalKnightMoves, showingCheck);
-      return legalKnightMoves;
+      if (!doneCheckingForMoves) {
+        let tempArray = ChangeLegalMovesIfCheck(
+          input,
+          legalKnightMoves,
+          showingCheck
+        );
+        changeLegalMovesIfSteppingIntoCheck(input, tempArray);
+      }
+      return changeLegalMovesIfSteppingIntoCheck(input, legalKnightMoves);
     case "wqueen":
     case "bqueen":
       const legalQueenMoves = LegalQueenMoves(
@@ -598,9 +654,15 @@ function GetLegalMoves(
         checking,
         fixingCheck
       );
-      if (!doneCheckingForMoves)
-        return ChangeLegalMovesIfCheck(input, legalQueenMoves, showingCheck);
-      return legalQueenMoves;
+      if (!doneCheckingForMoves) {
+        let tempArray = ChangeLegalMovesIfCheck(
+          input,
+          legalQueenMoves,
+          showingCheck
+        );
+        changeLegalMovesIfSteppingIntoCheck(input, tempArray);
+      }
+      return changeLegalMovesIfSteppingIntoCheck(input, legalQueenMoves);
     case "wking":
       let tempWKing = LegalKingMoves(input, pieceName, checking);
       tempWKing = RemoveStepIntoCheck(tempWKing, pieceName, "white");
@@ -1118,9 +1180,9 @@ function GetTrueMoves(
           if (kingElement.classList.contains(piecesArray[j])) {
             if (piecesArray[j].charAt(0) !== pieceName.charAt(0))
               if (!checking) {
-                if(!CheckForCheck(pieceForCheck,'',true,true,false,false))
-                  capture.push(legalMoves[i])
-              };
+                if (!CheckForCheck(pieceForCheck, "", true, true, false, false))
+                  capture.push(legalMoves[i]);
+              }
           }
         }
       }
@@ -1134,9 +1196,9 @@ function GetTrueMoves(
           if (kingElement.classList.contains(piecesArray[j])) {
             if (piecesArray[j].charAt(0) !== pieceName.charAt(0))
               if (!checking) {
-                if(!CheckForCheck(pieceForCheck,'',true,true,false,false))
-                  capture.push(legalMoves[i])
-              };
+                if (!CheckForCheck(pieceForCheck, "", true, true, false, false))
+                  capture.push(legalMoves[i]);
+              }
           }
         }
       }
