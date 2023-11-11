@@ -149,7 +149,6 @@ function selectPieces(squares, square) {
     Update();
     moved = false;
     saveSituationToHistory();
-    turn++;
   }
 }
 
@@ -196,9 +195,11 @@ function MovePieces(square) {
     previousId !== 0 ? document.getElementById(previousId) : undefined;
   if (isMoveLegal) {
     isWhiteTurn = !isWhiteTurn;
+    turn++;
     kingName = 0;
     CheckWhichPieceAndAdjustVariables(previous, square);
     CopyClasses(previous, square);
+    UpgradePawn(square);
     previous.classList = [];
     moved = true;
     Castling(kingName, square);
@@ -1375,6 +1376,25 @@ function NumberOfLegalMovesLeft(color) {
   return movesLeft;
 }
 
+function UpgradePawn(square){
+  if(square.classList.contains('wpawn') &&square.id.charAt(1) == 8){
+    square.classList.remove('wpawn');
+    square.classList.add('wqueen');
+  }
+  if(square.classList.contains('bpawn') &&square.id.charAt(1) == 0){
+    square.classList.remove('bpawn');
+    square.classList.add('bqueen');
+  }
+}
+
+
+
+
+
+
+
+
+
 function Reset() {
   if (switched) SwitchBoard();
   initialTdClasses.forEach((tdInfo) => {
@@ -1466,14 +1486,15 @@ function GetHistory() {
     square.className = newSituation[i];
     i++;
   });
-  if (turn%2 === 0 && turn !== 0) isWhiteTurn = false;
-  else isWhiteTurn = true;
+  if (turn%2 === 0) isWhiteTurn = true;
+  else isWhiteTurn = false;
   ShowTurn()
 }
 
 function ShowTurn(){
   turnText.textContent = Math.round(turn/2);
 }
+
 ///////-----------------///////////
 ///////////functions///////////////
 ///////////////////////////////////
