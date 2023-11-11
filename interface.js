@@ -3,6 +3,8 @@ const win = document.querySelector('.win');
 const overlay = document.querySelector('.overlay');
 const buttonClose = document.querySelector('.close');
 const buttonReset = document.querySelector('.reset');
+const buttonLeft = document.querySelector('.left');
+const buttonRight = document.querySelector('.right');
 const buttonFlip = document.querySelector('.flip');
 const player2Mode = document.querySelector('.player-2 button');
 const player2label = document.querySelector('.player-2 p');
@@ -26,6 +28,8 @@ function CloseWin() {
 
 buttonReset.addEventListener('click', Reset);
 buttonFlip.addEventListener('click', SwitchBoard);
+buttonLeft.addEventListener('click', GoBackInHistory);
+buttonRight.addEventListener('click', GoForwardInHistory);
 
 player2Mode.addEventListener('click', ()=>{
   if(isPlayer2){

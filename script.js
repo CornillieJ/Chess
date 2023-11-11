@@ -120,6 +120,7 @@ function Update() {
 
 function selectPieces(squares, square) {
   if (previousId !== 0) {
+  Update();
     squares.forEach((square) => {
       HideLegalMoves(square);
     });
@@ -139,7 +140,8 @@ function selectPieces(squares, square) {
       }
     }
   } else {
-    moved = false;
+  Update();
+  moved = false;
     saveSituationToHistory();
   }
 }
@@ -178,7 +180,6 @@ function MovePieces(square) {
   capture = [];
   selectPieces(squares, square);
   ShowCaptureMoves();
-  Update();
 }
 function checkWin() {
   checkingwin = true;
@@ -228,31 +229,38 @@ function changeLegalMovesIfSteppingIntoCheck(piece, movesArray) {
   if (piece === clicked) {
     const filteredLegalMoves = [];
     const tempfromClassName = piece.className;
+    const toReturnArray = []
     piece.className = 0;
     if (isWhiteTurn) {
       for (let i = 0; i < movesArray.length; i++) {
+        const tempToElement = document.getElementById(movesArray[i]);
+        const temptoClassName = tempToElement.className;
+        tempToElement.className= tempfromClassName;
         allPieces.forEach((piece2) => {
           if (piece2.classList.contains("wking"))
-            if (CheckForCheck(piece2, "white", true, true, true)) {
-              piece.className = tempfromClassName;
-              return (movesArray = []);
+            if (!CheckForCheck(piece2, "white", true, true, true)) {
+              toReturnArray.push(movesArray[i])
             }
         });
+        tempToElement.className = temptoClassName;
       }
     }
     if (!isWhiteTurn) {
       for (let i = 0; i < movesArray.length; i++) {
+        const tempToElement = document.getElementById(movesArray[i]);
+        const temptoClassName = tempToElement.className;
+        tempToElement.className= tempfromClassName;
         allPieces.forEach((piece2) => {
           if (piece2.classList.contains("bking"))
-            if (CheckForCheck(piece2, "black", true, true, true)) {
-              piece.className = tempfromClassName;
-              return (movesArray = []);
+            if (!CheckForCheck(piece2, "black", true, true, true)) {
+              toReturnArray.push(movesArray[i])
             }
         });
+        tempToElement.className = temptoClassName;
       }
     }
     piece.className = tempfromClassName;
-    return movesArray;
+    return toReturnArray;
   }
   return movesArray;
 }
@@ -348,7 +356,8 @@ function ShowLegalMoves(piece, showHide) {
 function ShowCaptureMoves() {
   if (capture.length > 0 && capture !== undefined) {
     for (let i = 0; i < capture.length; i++) {
-      document.getElementById(capture[i]).classList.add("capture");
+      const square = document.getElementById(capture[i])
+      if(square.classList.contains('legal'))square.classList.add("capture");
     }
   }
 }
@@ -618,7 +627,7 @@ function GetLegalMoves(
         checking,
         fixingCheck
       );
-      if (!doneCheckingForMoves) {
+      if ((!doneCheckingForMoves && (wcheck || bcheck)) || checkingwin) {
         return ChangeLegalMovesIfCheck(input, legalRookMoves, showingCheck);
         //changeLegalMovesIfSteppingIntoCheck(input, tempArray);
       }
@@ -626,7 +635,7 @@ function GetLegalMoves(
     case "wbishop":
     case "bbishop":
       const legalBishopMoves = LegalBishopMoves(input, pieceName, checking);
-      if (!doneCheckingForMoves) {
+      if ((!doneCheckingForMoves && (wcheck || bcheck)) || checkingwin) {
         return ChangeLegalMovesIfCheck(input, legalBishopMoves, showingCheck);
         //changeLegalMovesIfSteppingIntoCheck(input, tempArray);
       }
@@ -639,7 +648,7 @@ function GetLegalMoves(
         checking,
         fixingCheck
       );
-      if (!doneCheckingForMoves) {
+      if ((!doneCheckingForMoves && (wcheck || bcheck)) || checkingwin) {
         return ChangeLegalMovesIfCheck(input, legalKnightMoves, showingCheck);
         //changeLegalMovesIfSteppingIntoCheck(input, tempArray);
       }
@@ -652,7 +661,7 @@ function GetLegalMoves(
         checking,
         fixingCheck
       );
-      if (!doneCheckingForMoves) {
+      if ((!doneCheckingForMoves && (wcheck || bcheck)) || checkingwin) {
         return ChangeLegalMovesIfCheck(input, legalQueenMoves, showingCheck);
         //changeLegalMovesIfSteppingIntoCheck(input, tempArray);
       }
@@ -694,8 +703,8 @@ function LegalPawnMoves(piece, pieceName, checking) {
     let leftFront;
     let rightFront;
     if (legalNum + 1 <= 8) {
-      if (index - 1 > 0) leftFrontId = letters[index - 1] + (legalNum + 1);
-      if (index + 1 < 8) rightFrontId = letters[index + 1] + (legalNum + 1);
+      if ((index - 1) >= 0) leftFrontId = letters[index - 1] + (legalNum + 1);
+      if ((index + 1) < 8) rightFrontId = letters[index + 1] + (legalNum + 1);
       if (leftFrontId != 0) {
         leftFront = document.getElementById(leftFrontId);
         for (let i = 0; i < blackPiecesArray.length; i++) {
@@ -1378,25 +1387,39 @@ function FillCurrentSituation() {
 }
 
 function saveSituationToHistory() {
-  currentIndex++;
-  currentSituation=[];
+  shownIndex++;
+  currentIndex = shownIndex;
+  currentSituation = [];
   squares.forEach((square) => {
     currentSituation.push(square.className);
   });
-  history[currentIndex]=currentSituation;
+  history[currentIndex] = currentSituation;
   // shownIndex++;
 }
 function GoBackInHistory() {
-  // if (shownIndex > 0) shownIndex--;
-  if (currentIndex > 0) currentIndex--;
+  if (shownIndex > 0) {
+    shownIndex--;
+
+    isWhiteTurn = !isWhiteTurn;
+  }
+  GetHistory();
+}
+function GoForwardInHistory() {
+  if (shownIndex < currentIndex) {
+    shownIndex++;
+
+    isWhiteTurn = !isWhiteTurn;
+  }
+  GetHistory();
+}
+function GetHistory() {
   let i = 0;
   // const newSituation = history[shownIndex];
-  const newSituation = history[currentIndex];
+  const newSituation = history[shownIndex];
   squares.forEach((square) => {
     square.className = newSituation[i];
     i++;
   });
-  isWhiteTurn = !isWhiteTurn;
 }
 ///////-----------------///////////
 ///////////functions///////////////

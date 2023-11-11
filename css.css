@@ -109,6 +109,17 @@ td{
   background: none;
 }
 .flip, .reset{
+  display: block;
+  margin-top: 1rem;
+  margin-left: 1rem;
+  font-size: 3rem;
+  color: var(--color-button);
+  cursor: pointer;
+  border: none;
+  background: none;
+  box-shadow: 1px 1px 0px black;
+}
+.left, .right{
   margin-top: 1rem;
   margin-left: 1rem;
   font-size: 3rem;
@@ -119,7 +130,7 @@ td{
   box-shadow: 1px 1px 0px black;
 }
 
-.flip:active{
+.flip:active, .reset:active, .left:active, .right:active{
   box-shadow: -3px -3px 3px black;
 }
 .player-2{
@@ -141,9 +152,6 @@ td{
   text-wrap: nowrap;
   color: rgb(179, 0, 0);
   background: none;
-}
-.reset:active{
-  box-shadow: -3px -3px 3px black;
 }
 .rotated{
   transform: rotate(180deg);
