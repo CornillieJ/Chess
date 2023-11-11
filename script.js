@@ -1,6 +1,7 @@
 "use strict";
 //TODO: Add history
-
+let enPassantChar='a';
+let enPassantnum=1;
 let history = [];
 let currentSituation = [];
 let currentIndex = 0;
@@ -150,13 +151,29 @@ function IsMoveLegal(to) {
   if (to.classList.contains("legal")) return true;
   else return false;
 }
-function CheckWhichPieceAndAdjustVariables(previous) {
+function CheckWhichPieceAndAdjustVariables(previous, square) {
   if (previous.classList.contains("wking")) kingName = "wking";
   if (previous.classList.contains("bking")) kingName = "bking";
   if (previous.classList.contains("warook")) isWCastlingPossibleA = false;
   if (previous.classList.contains("whrook")) isWCastlingPossibleH = false;
   if (previous.classList.contains("barook")) isBCastlingPossibleA = false;
   if (previous.classList.contains("bhrook")) isBCastlingPossibleH = false;
+  if(previous.classList.contains("wpawn")){
+    document.getElementById(enPassantChar + enPassantnum).classList.remove('en-passant');
+    if(previous.id.charAt(1) == 2 && square.id.charAt(1) == 4){
+      enPassantChar=previous.id.charAt(0);
+      enPassantnum =Number(previous.id.charAt(1)) + 1;
+      document.getElementById(enPassantChar + enPassantnum).classList.add('en-passant');
+    }
+  }
+  if(previous.classList.contains("bpawn")){
+    document.getElementById(enPassantChar + enPassantnum).classList.remove('en-passant');
+    if(previous.id.charAt(1) == 7 && square.id.charAt(1) == 5){
+      enPassantChar=previous.id.charAt(0);
+      enPassantnum =Number(previous.id.charAt(1)) - 1;
+      document.getElementById(enPassantChar + enPassantnum).classList.add('en-passant');
+    }
+  }
 }
 function MovePieces(square) {
   HideCaptureMoves();
@@ -166,7 +183,7 @@ function MovePieces(square) {
   if (isMoveLegal) {
     isWhiteTurn = !isWhiteTurn;
     kingName = 0;
-    CheckWhichPieceAndAdjustVariables(previous);
+    CheckWhichPieceAndAdjustVariables(previous, square);
     CopyClasses(previous, square);
     previous.classList = [];
     moved = true;
@@ -708,7 +725,7 @@ function LegalPawnMoves(piece, pieceName, checking) {
       if (leftFrontId != 0) {
         leftFront = document.getElementById(leftFrontId);
         for (let i = 0; i < blackPiecesArray.length; i++) {
-          if (leftFront.classList.contains(blackPiecesArray[i])) {
+          if (leftFront.classList.contains(blackPiecesArray[i]) || leftFront.classList.contains('en-passant')) {
             legalMoves.push(leftFrontId);
             arrayforchecking.push(leftFrontId);
             if (!checking) capture.push(leftFrontId);
@@ -718,7 +735,7 @@ function LegalPawnMoves(piece, pieceName, checking) {
       if (rightFrontId != 0) {
         rightFront = document.getElementById(rightFrontId);
         for (let i = 0; i < blackPiecesArray.length; i++) {
-          if (rightFront.classList.contains(blackPiecesArray[i])) {
+          if (rightFront.classList.contains(blackPiecesArray[i]) || rightFront.classList.contains('en-passant')) {
             legalMoves.push(rightFrontId);
             arrayforchecking.push(leftFrontId);
             if (!checking) capture.push(rightFrontId);
@@ -769,7 +786,7 @@ function LegalPawnMoves(piece, pieceName, checking) {
       if (leftFrontId != 0) {
         leftFront = document.getElementById(leftFrontId);
         for (let i = 0; i < whitePiecesArray.length; i++) {
-          if (leftFront.classList.contains(whitePiecesArray[i])) {
+          if (leftFront.classList.contains(whitePiecesArray[i]) || leftFront.classList.contains('en-passant')) {
             legalMoves.push(leftFrontId);
             if (!checking) capture.push(leftFrontId);
           }
@@ -778,7 +795,7 @@ function LegalPawnMoves(piece, pieceName, checking) {
       if (rightFrontId != 0) {
         rightFront = document.getElementById(rightFrontId);
         for (let i = 0; i < whitePiecesArray.length; i++) {
-          if (rightFront.classList.contains(whitePiecesArray[i])) {
+          if (rightFront.classList.contains(whitePiecesArray[i]) || rightFront.classList.contains('en-passant')) {
             legalMoves.push(rightFrontId);
             if (!checking) capture.push(rightFrontId);
           }
@@ -967,7 +984,7 @@ function GetTrueMoves(
       return legalMoves;
       break;
     case "bpawn":
-      const frontNumBPawn = pieceNum === 8 ? 8 : pieceNum - 1;
+      const frontNumBPawn = pieceNum === 0 ? 0 : pieceNum - 1;
       const frontBPawn = document.getElementById(pieceChar + frontNumBPawn);
       for (let i = 0; i < piecesArray.length; i++) {
         if (frontBPawn.classList.contains(piecesArray[i])) {
