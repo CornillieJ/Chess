@@ -1,14 +1,9 @@
 "use strict";
-//TODO: Add history
-let enPassantChar='a';
-let enPassantnum=1;
-let history = [];
-let currentSituation = [];
-let currentIndex = 0;
-let shownIndex = 0;
+
 ///////////////////////////////////
 ///////////variables///////////////
 ///////-----------------///////////
+
 let checkingwin = false;
 let initialTdClasses = [];
 const table = document.querySelector("table");
@@ -29,6 +24,7 @@ let squares = document.querySelectorAll("td");
 const centerText = document.querySelector(".center-text");
 const whiteText = document.querySelector(".white-text");
 const blackText = document.querySelector(".black-text");
+const turnText = document.getElementById('turn-text');
 const firstKingSide = ["f1", "g1"];
 const firstQueenSide = ["b1", "c1", "d1"];
 const lastKingSide = ["f8", "g8"];
@@ -85,6 +81,15 @@ let isBCastlingPossibleA = true;
 let kingName;
 let clicked;
 let doneCheckingForMoves;
+
+let enPassantChar = "a";
+let enPassantnum = 1;
+let history = [];
+let currentSituation = [];
+let currentIndex = 0;
+let shownIndex = 0;
+let turn=0;
+let isFirstTime = true;
 ///////-----------------///////////
 ///////////variables///////////////
 ///////////////////////////////////
@@ -121,7 +126,7 @@ function Update() {
 
 function selectPieces(squares, square) {
   if (previousId !== 0) {
-  Update();
+    Update();
     squares.forEach((square) => {
       HideLegalMoves(square);
     });
@@ -141,9 +146,10 @@ function selectPieces(squares, square) {
       }
     }
   } else {
-  Update();
-  moved = false;
+    Update();
+    moved = false;
     saveSituationToHistory();
+    turn++;
   }
 }
 
@@ -158,20 +164,28 @@ function CheckWhichPieceAndAdjustVariables(previous, square) {
   if (previous.classList.contains("whrook")) isWCastlingPossibleH = false;
   if (previous.classList.contains("barook")) isBCastlingPossibleA = false;
   if (previous.classList.contains("bhrook")) isBCastlingPossibleH = false;
-  if(previous.classList.contains("wpawn")){
-    document.getElementById(enPassantChar + enPassantnum).classList.remove('en-passant');
-    if(previous.id.charAt(1) == 2 && square.id.charAt(1) == 4){
-      enPassantChar=previous.id.charAt(0);
-      enPassantnum =Number(previous.id.charAt(1)) + 1;
-      document.getElementById(enPassantChar + enPassantnum).classList.add('en-passant');
+  if (previous.classList.contains("wpawn")) {
+    document
+      .getElementById(enPassantChar + enPassantnum)
+      .classList.remove("en-passant");
+    if (previous.id.charAt(1) == 2 && square.id.charAt(1) == 4) {
+      enPassantChar = previous.id.charAt(0);
+      enPassantnum = Number(previous.id.charAt(1)) + 1;
+      document
+        .getElementById(enPassantChar + enPassantnum)
+        .classList.add("en-passant");
     }
   }
-  if(previous.classList.contains("bpawn")){
-    document.getElementById(enPassantChar + enPassantnum).classList.remove('en-passant');
-    if(previous.id.charAt(1) == 7 && square.id.charAt(1) == 5){
-      enPassantChar=previous.id.charAt(0);
-      enPassantnum =Number(previous.id.charAt(1)) - 1;
-      document.getElementById(enPassantChar + enPassantnum).classList.add('en-passant');
+  if (previous.classList.contains("bpawn")) {
+    document
+      .getElementById(enPassantChar + enPassantnum)
+      .classList.remove("en-passant");
+    if (previous.id.charAt(1) == 7 && square.id.charAt(1) == 5) {
+      enPassantChar = previous.id.charAt(0);
+      enPassantnum = Number(previous.id.charAt(1)) - 1;
+      document
+        .getElementById(enPassantChar + enPassantnum)
+        .classList.add("en-passant");
     }
   }
 }
@@ -219,11 +233,13 @@ function checkWin() {
   if (whiteWinCheck) {
     centerText.textContent = "White Wins";
     win.classList.remove("invisible");
+    win.style.fontSize = '0';
     overlay.classList.remove("invisible");
   }
   if (blackWinCheck) {
     centerText.textContent = "Black Wins";
     win.classList.remove("invisible");
+    win.style.fontSize = '2rem';
     overlay.classList.remove("invisible");
   }
 
@@ -246,17 +262,17 @@ function changeLegalMovesIfSteppingIntoCheck(piece, movesArray) {
   if (piece === clicked) {
     const filteredLegalMoves = [];
     const tempfromClassName = piece.className;
-    const toReturnArray = []
+    const toReturnArray = [];
     piece.className = 0;
     if (isWhiteTurn) {
       for (let i = 0; i < movesArray.length; i++) {
         const tempToElement = document.getElementById(movesArray[i]);
         const temptoClassName = tempToElement.className;
-        tempToElement.className= tempfromClassName;
+        tempToElement.className = tempfromClassName;
         allPieces.forEach((piece2) => {
           if (piece2.classList.contains("wking"))
             if (!CheckForCheck(piece2, "white", true, true, true)) {
-              toReturnArray.push(movesArray[i])
+              toReturnArray.push(movesArray[i]);
             }
         });
         tempToElement.className = temptoClassName;
@@ -266,11 +282,11 @@ function changeLegalMovesIfSteppingIntoCheck(piece, movesArray) {
       for (let i = 0; i < movesArray.length; i++) {
         const tempToElement = document.getElementById(movesArray[i]);
         const temptoClassName = tempToElement.className;
-        tempToElement.className= tempfromClassName;
+        tempToElement.className = tempfromClassName;
         allPieces.forEach((piece2) => {
           if (piece2.classList.contains("bking"))
             if (!CheckForCheck(piece2, "black", true, true, true)) {
-              toReturnArray.push(movesArray[i])
+              toReturnArray.push(movesArray[i]);
             }
         });
         tempToElement.className = temptoClassName;
@@ -373,8 +389,8 @@ function ShowLegalMoves(piece, showHide) {
 function ShowCaptureMoves() {
   if (capture.length > 0 && capture !== undefined) {
     for (let i = 0; i < capture.length; i++) {
-      const square = document.getElementById(capture[i])
-      if(square.classList.contains('legal'))square.classList.add("capture");
+      const square = document.getElementById(capture[i]);
+      if (square.classList.contains("legal")) square.classList.add("capture");
     }
   }
 }
@@ -720,12 +736,15 @@ function LegalPawnMoves(piece, pieceName, checking) {
     let leftFront;
     let rightFront;
     if (legalNum + 1 <= 8) {
-      if ((index - 1) >= 0) leftFrontId = letters[index - 1] + (legalNum + 1);
-      if ((index + 1) < 8) rightFrontId = letters[index + 1] + (legalNum + 1);
+      if (index - 1 >= 0) leftFrontId = letters[index - 1] + (legalNum + 1);
+      if (index + 1 < 8) rightFrontId = letters[index + 1] + (legalNum + 1);
       if (leftFrontId != 0) {
         leftFront = document.getElementById(leftFrontId);
         for (let i = 0; i < blackPiecesArray.length; i++) {
-          if (leftFront.classList.contains(blackPiecesArray[i]) || leftFront.classList.contains('en-passant')) {
+          if (
+            leftFront.classList.contains(blackPiecesArray[i]) ||
+            leftFront.classList.contains("en-passant")
+          ) {
             legalMoves.push(leftFrontId);
             arrayforchecking.push(leftFrontId);
             if (!checking) capture.push(leftFrontId);
@@ -735,7 +754,10 @@ function LegalPawnMoves(piece, pieceName, checking) {
       if (rightFrontId != 0) {
         rightFront = document.getElementById(rightFrontId);
         for (let i = 0; i < blackPiecesArray.length; i++) {
-          if (rightFront.classList.contains(blackPiecesArray[i]) || rightFront.classList.contains('en-passant')) {
+          if (
+            rightFront.classList.contains(blackPiecesArray[i]) ||
+            rightFront.classList.contains("en-passant")
+          ) {
             legalMoves.push(rightFrontId);
             arrayforchecking.push(leftFrontId);
             if (!checking) capture.push(rightFrontId);
@@ -786,7 +808,10 @@ function LegalPawnMoves(piece, pieceName, checking) {
       if (leftFrontId != 0) {
         leftFront = document.getElementById(leftFrontId);
         for (let i = 0; i < whitePiecesArray.length; i++) {
-          if (leftFront.classList.contains(whitePiecesArray[i]) || leftFront.classList.contains('en-passant')) {
+          if (
+            leftFront.classList.contains(whitePiecesArray[i]) ||
+            leftFront.classList.contains("en-passant")
+          ) {
             legalMoves.push(leftFrontId);
             if (!checking) capture.push(leftFrontId);
           }
@@ -795,7 +820,10 @@ function LegalPawnMoves(piece, pieceName, checking) {
       if (rightFrontId != 0) {
         rightFront = document.getElementById(rightFrontId);
         for (let i = 0; i < whitePiecesArray.length; i++) {
-          if (rightFront.classList.contains(whitePiecesArray[i]) || rightFront.classList.contains('en-passant')) {
+          if (
+            rightFront.classList.contains(whitePiecesArray[i]) ||
+            rightFront.classList.contains("en-passant")
+          ) {
             legalMoves.push(rightFrontId);
             if (!checking) capture.push(rightFrontId);
           }
@@ -1373,6 +1401,8 @@ function Reset() {
   history = [];
   currentIndex = 0;
   shownIndex = 0;
+  isFirstTime = true;
+  turn = 0;
 }
 
 function SwitchBoard() {
@@ -1404,30 +1434,29 @@ function FillCurrentSituation() {
 }
 
 function saveSituationToHistory() {
-  shownIndex++;
-  currentIndex = shownIndex;
+  if(!isFirstTime){
+    shownIndex++;
+    currentIndex = shownIndex;
+  }
   currentSituation = [];
-  squares.forEach((square) => {
-    currentSituation.push(square.className);
-  });
+  FillCurrentSituation();
   history[currentIndex] = currentSituation;
   // shownIndex++;
+  isFirstTime = false
 }
 function GoBackInHistory() {
   if (shownIndex > 0) {
     shownIndex--;
-
-    isWhiteTurn = !isWhiteTurn;
+    turn --;
+    GetHistory();
   }
-  GetHistory();
 }
 function GoForwardInHistory() {
   if (shownIndex < currentIndex) {
     shownIndex++;
-
-    isWhiteTurn = !isWhiteTurn;
+    turn++;
+    GetHistory();
   }
-  GetHistory();
 }
 function GetHistory() {
   let i = 0;
@@ -1437,6 +1466,13 @@ function GetHistory() {
     square.className = newSituation[i];
     i++;
   });
+  if (turn%2 === 0 && turn !== 0) isWhiteTurn = false;
+  else isWhiteTurn = true;
+  ShowTurn()
+}
+
+function ShowTurn(){
+  turnText.textContent = Math.round(turn/2);
 }
 ///////-----------------///////////
 ///////////functions///////////////
@@ -1445,6 +1481,7 @@ function GetHistory() {
 ///////////////////////////////////
 /////////////events////////////////
 ///////-----------------///////////
+saveSituationToHistory();
 squares.forEach((square) => {
   square.addEventListener("click", () => {
     FillCurrentSituation();
@@ -1455,19 +1492,8 @@ squares.forEach((square) => {
     ShowCheck("", false, true);
     doneCheckingForMoves = false;
     checkWin();
+    ShowTurn();
   });
-});
-
-document.addEventListener("keydown", function (e) {
-  if (e.key === "r" || e.key === "R") {
-    Reset();
-  }
-  if (e.key === "f" || e.key === "F") {
-    SwitchBoard();
-  }
-  if (e.key === "o" || e.ke === "O") {
-    GoBackInHistory();
-  }
 });
 
 ///////-----------------///////////
