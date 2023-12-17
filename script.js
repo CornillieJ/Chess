@@ -855,11 +855,7 @@ function LegalPawnMoves(piece, pieceName, checking) {
   }
 }
 
-function LegalRookMoves(piece, pieceName, checking) {
-  let placement = piece.id;
-  let legalChar = placement.charAt(0);
-  let legalNum = parseInt(placement.slice(1), 10);
-  let index = letters.indexOf(legalChar);
+function GetBaseRookMoves(legalChar, legalNum){
   const legalMoves = [];
   const filteredLetters = letters.filter((letter) => letter !== legalChar);
   const filteredNumbers = numbers.filter((number) => number !== legalNum);
@@ -869,7 +865,15 @@ function LegalRookMoves(piece, pieceName, checking) {
   for (let i = 0; i < filteredNumbers.length; i++) {
     legalMoves.push(legalChar + filteredNumbers[i]);
   }
+  return legalMoves;
+}
 
+function LegalRookMoves(piece, pieceName, checking) {
+  let placement = piece.id;
+  let legalChar = placement.charAt(0);
+  let legalNum = parseInt(placement.slice(1), 10);
+  let index = letters.indexOf(legalChar);
+  const legalMoves = GetBaseRookMoves(legalChar,legalNum);
   return GetTrueMoves(
     pieceName,
     legalChar,
@@ -880,11 +884,7 @@ function LegalRookMoves(piece, pieceName, checking) {
   );
 }
 
-function LegalBishopMoves(piece, pieceName, checking, fixingCheck) {
-  const placement = piece.id;
-  let legalChar = placement.charAt(0);
-  let legalNum = parseInt(placement.slice(1), 10);
-  let index = letters.indexOf(legalChar);
+function GetBaseBishopMoves(legalChar,legalNum){
   const legalMoves = [];
   let tempArray1 = [];
   let tempArray2 = [];
@@ -900,6 +900,15 @@ function LegalBishopMoves(piece, pieceName, checking, fixingCheck) {
     if (legalNum - j > 0) tempArray2.push(letters[i] + (legalNum - j)); //bottomleft
   }
   legalMoves.push(tempArray1, tempArray2);
+  return legalMoves;
+}
+
+function LegalBishopMoves(piece, pieceName, checking, fixingCheck) {
+  const placement = piece.id;
+  let legalChar = placement.charAt(0);
+  let legalNum = parseInt(placement.slice(1), 10);
+  let index = letters.indexOf(legalChar);
+  const legalMoves = GetBaseBishopMoves(legalChar,legalNum);
   return GetTrueMoves(
     pieceName,
     legalChar,
@@ -909,7 +918,6 @@ function LegalBishopMoves(piece, pieceName, checking, fixingCheck) {
     checking
   );
 }
-
 function LegalQueenMoves(piece, pieceName, checking) {
   let rookPartName;
   let bishopPartName;
