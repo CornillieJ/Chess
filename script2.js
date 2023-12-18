@@ -1,5 +1,6 @@
 "use strict";
 
+//region color code
 // Red (!)
 // Blue (?)
 // Green (*)
@@ -9,12 +10,11 @@
 // Mustard (todo)
 // Grey (//)
 
+//? /////////////////////////////////
+//? /////////variables///////////////
+//? /////-----------------///////////
 
-///////////////////////////////////
-///////////variables///////////////
-///////-----------------///////////
-
-//#region //! variables
+//#region //? variables
 let initialTdClasses = [];
 const table = document.querySelector("table");
 const tableCells = document.querySelectorAll("td");
@@ -77,15 +77,16 @@ let moved = false;
 let captures = [];
 let lastcolor = "white";
 let movedPawnSquare;
-
+let checking = false;
+let checkMoves = [];
 //#endregion
-///////-----------------///////////
-///////////variables///////////////
-///////////////////////////////////
+//? /////-----------------///////////
+//? /////////variables///////////////
+//? /////////////////////////////////
 
-///////////////////////////////////
-///////////functions///////////////
-///////-----------------/////////// 
+//! /////////////////////////////////
+//! /////////functions///////////////
+//! /////-----------------///////////
 //#region //? GetClicked name and color
 function GetClickedPieceName(squareparam) {
   let found = 0;
@@ -218,8 +219,8 @@ function GetMovesArray(square, clickedPieceName) {
   }
   return movesArray;
 }
-//#endregion 
-//////////////////////////////////////////////////////////////////////////////////////////
+//#endregion
+//////////////////////////////////////////////////
 //#region //? FilterMoves
 function filterMovesForAllPieces(array) {
   let filteredArray = array;
@@ -264,7 +265,7 @@ function filterMovesForBlackPieces(array) {
   return filteredArray;
 }
 //#endregion
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////
 //#region //* GetBaseMoves
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function GetBaseBishopMoves(legalChar, legalNum, index, color) {
@@ -279,7 +280,8 @@ function GetBaseBishopMoves(legalChar, legalNum, index, color) {
       if (element.classList.contains(color)) break;
       if (element.classList.contains(enemyColor)) {
         tempArray1.push(id); //topright
-        captures.push(id);
+        if (checking) checkMoves.push(id);
+        else captures.push(id);
         break;
       }
       tempArray1.push(id); //topright
@@ -292,7 +294,8 @@ function GetBaseBishopMoves(legalChar, legalNum, index, color) {
       if (element.classList.contains(color)) break;
       if (element.classList.contains(enemyColor)) {
         tempArray2.push(id); //bottomright
-        captures.push(id);
+        if (checking) checkMoves.push(id);
+        else captures.push(id);
         break;
       }
       tempArray2.push(id); //bottomright
@@ -308,7 +311,8 @@ function GetBaseBishopMoves(legalChar, legalNum, index, color) {
       if (element.classList.contains(color)) break;
       if (element.classList.contains(enemyColor)) {
         tempArray1.push(id); //topLeft
-        captures.push(id);
+        if (checking) checkMoves.push(id);
+        else captures.push(id);
         break;
       }
       tempArray1.push(id); //topleft
@@ -321,7 +325,8 @@ function GetBaseBishopMoves(legalChar, legalNum, index, color) {
       if (element.classList.contains(color)) break;
       if (element.classList.contains(enemyColor)) {
         tempArray2.push(id); //bottomLeft
-        captures.push(id);
+        if (checking) checkMoves.push(id);
+        else captures.push(id);
         break;
       }
       tempArray2.push(id); //bottomleft
@@ -349,7 +354,8 @@ function GetBaseRookMoves(char, num, color) {
         .getElementById(leftRookLetters[i] + num)
         .classList.contains(enemyColor)
     ) {
-      captures.push(leftRookLetters[i] + num);
+      if (checking) checkMoves.push(leftRookLetters[i] + num);
+      else captures.push(leftRookLetters[i] + num);
       legalMoves.push(leftRookLetters[i] + num);
       break;
     }
@@ -367,7 +373,8 @@ function GetBaseRookMoves(char, num, color) {
         .getElementById(rightRookLetters[i] + num)
         .classList.contains(enemyColor)
     ) {
-      captures.push(rightRookLetters[i] + num);
+      if (checking) checkMoves.push(rightRookLetters[i] + num);
+      else captures.push(rightRookLetters[i] + num);
       legalMoves.push(rightRookLetters[i] + num);
       break;
     }
@@ -376,7 +383,8 @@ function GetBaseRookMoves(char, num, color) {
   for (let i = num - 1; i > 0; i--) {
     if (document.getElementById(char + i).classList.contains(color)) break;
     if (document.getElementById(char + i).classList.contains(enemyColor)) {
-      captures.push(char + i);
+      if (checking) checkMoves.push(char + i);
+      else captures.push(char + i);
       legalMoves.push(char + i);
       break;
     }
@@ -385,7 +393,8 @@ function GetBaseRookMoves(char, num, color) {
   for (let i = num + 1; i <= 8; i++) {
     if (document.getElementById(char + i).classList.contains(color)) break;
     if (document.getElementById(char + i).classList.contains(enemyColor)) {
-      captures.push(char + i);
+      if (checking) checkMoves.push(char + i);
+      else captures.push(char + i);
       legalMoves.push(char + i);
       break;
     }
@@ -440,13 +449,14 @@ function filterLegalMoves(legalMoves, color) {
     const element = document.getElementById(move);
     if (element.classList.contains(color))
       legalMoves = legalMoves.filter((id) => id != move);
-    if (element.classList.contains(enemyColor)) captures.push(move);
+    if (element.classList.contains(enemyColor))
+      if (checking) checkMoves.push(move);
+      else captures.push(move);
   });
   return legalMoves;
 }
 //#endregion
-///////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////
 //#region //^ GetMoves
 function GetWPawnMoves(squareparam, char, num, index) {
   let wPawnMoves = [];
@@ -466,7 +476,8 @@ function GetWPawnMoves(squareparam, char, num, index) {
         .getElementById(leftSideID)
         .classList.contains("en-passant-invisible")
     ) {
-      captures.push(leftSideID);
+      if (checking) checkMoves.push(leftSideID);
+      else captures.push(leftSideID);
       wPawnMoves.push(leftSideID);
     }
   }
@@ -478,7 +489,8 @@ function GetWPawnMoves(squareparam, char, num, index) {
         .getElementById(rightSideID)
         .classList.contains("en-passant-invisible")
     ) {
-      captures.push(rightSideID);
+      if (checking) checkMoves.push(rightSideID);
+      else captures.push(rightSideID);
       wPawnMoves.push(rightSideID);
     }
   }
@@ -506,7 +518,8 @@ function GetBPawnMoves(square, char, num, index) {
         .getElementById(leftSideID)
         .classList.contains("en-passant-invisible")
     ) {
-      captures.push(leftSideID);
+      if (checking) checkMoves.push(leftSideID);
+      else captures.push(leftSideID);
       bPawnMoves.push(leftSideID);
     }
   }
@@ -518,7 +531,8 @@ function GetBPawnMoves(square, char, num, index) {
         .getElementById(rightSideID)
         .classList.contains("en-passant-invisible")
     ) {
-      captures.push(rightSideID);
+      if (checking) checkMoves.push(rightSideID);
+      else captures.push(rightSideID);
       bPawnMoves.push(rightSideID);
     }
   }
@@ -576,7 +590,86 @@ function GetBKingMoves(char, num, index) {
   return bKingMoves;
 }
 //#endregion
-/////////----------------------------------------------------------------------
+//////////////////////////////////////////////////
+//#region //? show and reset Check
+function resetCheck(turn) {
+  let king;
+  if (!turn) king = document.querySelector(".wking");
+  else king = document.querySelector(".bking");
+  king.classList.remove("check");
+}
+
+function ShowCheck(turn) {
+  checking = true;
+  let check = false;
+  let king;
+  if (turn) {
+    king = document.querySelector(".wking");
+    whitePiecesArray.forEach((piece) => {
+      GetMovesArray(king, piece);
+      let piece2 = "b" + piece.substring(1);
+      checkMoves.forEach((move) => {
+        if (document.getElementById(move).classList.contains(piece2)){
+          king.classList.add("check");
+          checkMoves= [];
+          check = true;
+        }
+      });
+      checkMoves= [];
+    });
+  } else{
+    king = document.querySelector(".bking");
+    blackPiecesArray.forEach((piece) => {
+      GetMovesArray(king, piece);
+      let piece2 = "w" + piece.substring(1);
+      checkMoves.forEach((move) => {
+        if (document.getElementById(move).classList.contains(piece2)){
+          king.classList.add("check");
+          checkMoves= [];
+          check = true;
+        }
+      });
+      checkMoves= [];
+    });
+  }
+  checking = false;
+  return check;
+}
+//#endregion
+
+function filterCaptures(movesArray){
+  captures.forEach(capture => {
+    if (!movesArray.includes(capture))
+      captures = captures.filter(move => move != capture);
+  });
+}
+//////////////////////////////////////////////////
+//#region //~Limit moves by check
+function OnlyAllowMoveNoCheck(movesArray){
+  const wKing =document.querySelector('.wking');
+  const bKing =document.querySelector('.bking');
+  const wKingClassList = Array.from(wKing.classList);
+  const bKingClassList = Array.from(bKing.classList);
+  movesArray.forEach(move =>{
+    const moveSquare = document.getElementById(move);
+    moveSquare.classList.forEach
+    const tempMoveClassList = Array.from(moveSquare.classList);
+    const tempLastClassList = Array.from(lastSquare.classList);
+    moveSquare.classList = lastSquare.classList;
+    lastSquare.classList = [];
+    if(ShowCheck(isWhiteTurn)){
+      movesArray = movesArray.filter(id => id!=move);
+    }
+    resetCheck(!isWhiteTurn);
+    moveSquare.classList = tempMoveClassList.join(" ");
+    lastSquare.classList = tempLastClassList.join(" ");
+  });
+  wKing.classList = wKingClassList.join(" ");
+  bKing.classList = bKingClassList.join(" ");
+  return movesArray;
+}
+//#endregion
+//////////////////////////////////////////////////
 //#region //& En-Passant
 function ResetEnPassantHelper() {
   let num = !isWhiteTurn ? 3 : 6;
@@ -606,7 +699,7 @@ function ShowEnPassantHelper(lastSquare, squareparam) {
   }
 }
 //#endregion
-//////////---------------------------------------------------------------------
+//////////////////////////////////////////////////
 //#region //~ Move Pieces
 function MovePieces(lastSquare, squareparam) {
   ShowEnPassantHelper(lastSquare, squareparam);
@@ -618,11 +711,11 @@ function MovePieces(lastSquare, squareparam) {
   ResetEnPassantHelper();
 }
 //#endregion
-///////-----------------///////////
-///////////functions///////////////
-///////////////////////////////////
+//! /////-----------------///////////
+//! /////////functions///////////////
+//! /////////////////////////////////
 
-//#region //! Event handler and main code
+//#region //? Event handler and main code
 squares.forEach((square) => {
   square.addEventListener("click", () => {
     let clickedPieceName = GetClickedPieceName(square);
@@ -636,7 +729,9 @@ squares.forEach((square) => {
       ResetLegalAndPromotion();
       ResetCaptures();
       ShowSelected(square, clickedPieceName);
-      const legalMoves = GetMovesArray(square, clickedPieceName);
+      let legalMoves = GetMovesArray(square, clickedPieceName);
+      legalMoves = OnlyAllowMoveNoCheck(legalMoves);
+      filterCaptures(legalMoves);
       ShowLegal(legalMoves);
       ShowCaptures();
       if (clickedPieceName == "wpawn") ShowWPromotion(legalMoves);
@@ -656,6 +751,8 @@ squares.forEach((square) => {
       moved = true;
       isWhiteTurn = !isWhiteTurn;
       ResetLegalAndPromotion();
+      resetCheck(isWhiteTurn)
+      ShowCheck(isWhiteTurn);
     }
     if (moved || clickedPieceName == 0) {
       ResetLegalAndPromotion();
@@ -668,3 +765,28 @@ squares.forEach((square) => {
 //#endregion
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////
+//#region //* Reset
+function Reset() {
+  if (switched) SwitchBoard();
+  initialTdClasses.forEach((tdInfo) => {
+    tdInfo.element.className = tdInfo.class;
+  });
+  showToMoveText(isWhiteTurn);
+  moved = false;
+  captures = [];
+  isWhiteTurn = true;
+  whiteWinCheck = 0;
+  blackWinCheck = 0;
+  switched = false;
+  isWCastlingPossibleH = true;
+  isWCastlingPossibleA = true;
+  isBCastlingPossibleH = true;
+  isBCastlingPossibleA = true;
+  history = [];
+  currentIndex = 0;
+  shownIndex = 0;
+  isFirstTime = true;
+  turn = 0;
+}
+//#endregion
+
