@@ -79,6 +79,23 @@ let lastcolor = "white";
 let movedPawnSquare;
 let checking = false;
 let checkMoves = [];
+let switched = false;
+let wCheck = false;
+let bCheck = false;
+//TODO
+let history = [];
+let currentSituation = [];
+let currentIndex = 0;
+let shownIndex = 0;
+let turn = 0;
+let isFirstTime = true;
+
+
+let isWCastlingPossibleH = true;
+let isWCastlingPossibleA = true;
+let isBCastlingPossibleH = true;
+let isBCastlingPossibleA = true;
+
 //#endregion
 //? /////-----------------///////////
 //? /////////variables///////////////
@@ -361,7 +378,7 @@ function GetBaseRookMoves(char, num, color) {
     }
     legalMoves.push(leftRookLetters[i] + num);
   }
-  for (let i = 0; i < rightRookLetters.length - 1; i++) {
+  for (let i = 0; i <= rightRookLetters.length - 1; i++) {
     if (
       document
         .getElementById(rightRookLetters[i] + num)
@@ -439,7 +456,15 @@ function GetBaseKingMoves(char, num, index, color) {
     legalMoves.push(letters[index - 1] + (num + 1));
   if (index - 1 > 0 && num - 1 > 0)
     legalMoves.push(letters[index - 1] + (num - 1));
-  return filterLegalMoves(legalMoves, color);
+  if (char == "e" && num == 1 && color == "white") {
+    if (isWCastlingPossibleA) legalMoves.push("c1");
+    if (isWCastlingPossibleH) legalMoves.push("g1");
+  }
+  if (char == "e" && num == 8 && color == "black") {
+    if (isBCastlingPossibleA) legalMoves.push("c8");
+    if (isBCastlingPossibleH) legalMoves.push("g8");
+  }
+  return filterLegalKingMoves(legalMoves, color);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -447,14 +472,31 @@ function filterLegalMoves(legalMoves, color) {
   const enemyColor = color == "white" ? "black" : "white";
   legalMoves.forEach((move) => {
     const element = document.getElementById(move);
-    if (element.classList.contains(color))
+    if (element.classList.contains(color)) {
       legalMoves = legalMoves.filter((id) => id != move);
+    }
     if (element.classList.contains(enemyColor))
       if (checking) checkMoves.push(move);
       else captures.push(move);
   });
   return legalMoves;
 }
+
+function filterLegalKingMoves(legalMoves, color) {
+  legalMoves = FilterCastle(legalMoves);
+  const enemyColor = color == "white" ? "black" : "white";
+  legalMoves.forEach((move) => {
+    const element = document.getElementById(move);
+    if (element.classList.contains(color)) {
+      legalMoves = legalMoves.filter((id) => id != move);
+    }
+    if (element.classList.contains(enemyColor))
+      if (checking) checkMoves.push(move);
+      else captures.push(move);
+  });
+  return legalMoves;
+}
+
 //#endregion
 //////////////////////////////////////////////////
 //#region //^ GetMoves
@@ -582,6 +624,8 @@ function GetBQueenMoves(char, num, index) {
 //////////---------------------------------------------------------------------
 function GetWKingMoves(char, num, index) {
   let wKingMoves = GetBaseKingMoves(char, num, index, "white");
+  // if(isWCastlingPossibleA && wKingMoves.includes('d1')) wKingMoves = AddCastlingMoves(wKingMoves,'white','A');
+  // if(isWCastlingPossibleH && wKingMoves.includes('f1')) wKingMoves = AddCastlingMoves(wKingMoves,'white','H');
   return wKingMoves;
 }
 //////////---------------------------------------------------------------------
@@ -591,6 +635,7 @@ function GetBKingMoves(char, num, index) {
 }
 //#endregion
 //////////////////////////////////////////////////
+//////////////////////////////////////////////////
 //#region //? show and reset Check
 function resetCheck(turn) {
   let king;
@@ -599,37 +644,41 @@ function resetCheck(turn) {
   king.classList.remove("check");
 }
 
-function ShowCheck(turn) {
+function ShowCheck(turn, override, piece) {
   checking = true;
   let check = false;
   let king;
   if (turn) {
     king = document.querySelector(".wking");
+    if (override === true) king = piece;
     whitePiecesArray.forEach((piece) => {
       GetMovesArray(king, piece);
       let piece2 = "b" + piece.substring(1);
       checkMoves.forEach((move) => {
-        if (document.getElementById(move).classList.contains(piece2)){
+        if (document.getElementById(move).classList.contains(piece2)) {
           king.classList.add("check");
-          checkMoves= [];
+          checkMoves = [];
+          if(!override) wCheck = true;
           check = true;
         }
       });
-      checkMoves= [];
+      checkMoves = [];
     });
-  } else{
+  } else {
     king = document.querySelector(".bking");
+    if (override === true) king = piece;
     blackPiecesArray.forEach((piece) => {
       GetMovesArray(king, piece);
       let piece2 = "w" + piece.substring(1);
       checkMoves.forEach((move) => {
-        if (document.getElementById(move).classList.contains(piece2)){
+        if (document.getElementById(move).classList.contains(piece2)) {
           king.classList.add("check");
-          checkMoves= [];
+          checkMoves = [];
+          if(!override) bCheck = true;
           check = true;
         }
       });
-      checkMoves= [];
+      checkMoves = [];
     });
   }
   checking = false;
@@ -637,32 +686,44 @@ function ShowCheck(turn) {
 }
 //#endregion
 
-function filterCaptures(movesArray){
-  captures.forEach(capture => {
+function filterCaptures(movesArray) {
+  captures.forEach((capture) => {
     if (!movesArray.includes(capture))
-      captures = captures.filter(move => move != capture);
+      captures = captures.filter((move) => move != capture);
   });
 }
 //////////////////////////////////////////////////
 //#region //~Limit moves by check
-function OnlyAllowMoveNoCheck(movesArray){
-  const wKing =document.querySelector('.wking');
-  const bKing =document.querySelector('.bking');
+function OnlyAllowMoveNoCheck(movesArray, squareparam, pieceName, winCheck) {
+  let pieceToCheck = lastSquare;
+  if(winCheck) pieceToCheck = squareparam;
+  const wKing = document.querySelector(".wking");
+  const bKing = document.querySelector(".bking");
   const wKingClassList = Array.from(wKing.classList);
   const bKingClassList = Array.from(bKing.classList);
-  movesArray.forEach(move =>{
+  wKing.classList.remove('check');
+  bKing.classList.remove('check');
+  movesArray.forEach((move) => {
     const moveSquare = document.getElementById(move);
-    moveSquare.classList.forEach
+    moveSquare.classList.forEach;
     const tempMoveClassList = Array.from(moveSquare.classList);
-    const tempLastClassList = Array.from(lastSquare.classList);
-    moveSquare.classList = lastSquare.classList;
-    lastSquare.classList = [];
-    if(ShowCheck(isWhiteTurn)){
-      movesArray = movesArray.filter(id => id!=move);
+    const tempLastClassList = Array.from(pieceToCheck.classList);
+    moveSquare.classList = pieceToCheck.classList;
+    pieceToCheck.classList = [];
+    if (ShowCheck(isWhiteTurn, false, false)) {
+      movesArray = movesArray.filter((id) => id != move);
+      if (pieceName == "wking" && move == "d1")
+        movesArray = movesArray.filter((id) => id != "c1");
+      if (pieceName == "wking" && move == "f1")
+        movesArray = movesArray.filter((id) => id != "g1");
+      if (pieceName == "bking" && move == "d8")
+        movesArray = movesArray.filter((id) => id != "c8");
+      if (pieceName == "bking" && move == "f8")
+        movesArray = movesArray.filter((id) => id != "g8");
     }
     resetCheck(!isWhiteTurn);
     moveSquare.classList = tempMoveClassList.join(" ");
-    lastSquare.classList = tempLastClassList.join(" ");
+    pieceToCheck.classList = tempLastClassList.join(" ");
   });
   wKing.classList = wKingClassList.join(" ");
   bKing.classList = bKingClassList.join(" ");
@@ -700,8 +761,113 @@ function ShowEnPassantHelper(lastSquare, squareparam) {
 }
 //#endregion
 //////////////////////////////////////////////////
+//#region //* castling
+function ChangeCastling(lastSquare) {
+  if (lastSquare.classList.contains("wrook")) {
+    if (lastSquare.id == "a1") isWCastlingPossibleA = false;
+    if (lastSquare.id == "h1") isWCastlingPossibleH = false;
+  }
+  if (lastSquare.classList.contains("brook")) {
+    if (lastSquare.id == "a8") isBCastlingPossibleA = false;
+    if (lastSquare.id == "h8") isBCastlingPossibleH = false;
+  }
+  if (lastSquare.classList.contains("bking")) {
+    isBCastlingPossibleA = false;
+    isBCastlingPossibleH = false;
+  }
+  if (lastSquare.classList.contains("wking")) {
+    isWCastlingPossibleA = false;
+    isWCastlingPossibleH = false;
+  }
+}
+
+function FilterCastle(movesArray) {
+  if (movesArray.includes("f1") && movesArray.includes("g1")) {
+    const f1 = document.getElementById("f1");
+    const g1 = document.getElementById("g1");
+    whitePiecesArray.forEach((piece) => {
+      if (f1.classList.contains(piece) || g1.classList.contains(piece)) {
+        movesArray = movesArray.filter((move) => move != "f1");
+        movesArray = movesArray.filter((move) => move != "g1");
+      }
+    });
+  }
+  if (movesArray.includes("c1") && movesArray.includes("d1")) {
+    const b1 = document.getElementById("b1");
+    const c1 = document.getElementById("c1");
+    const d1 = document.getElementById("d1");
+    whitePiecesArray.forEach((piece) => {
+      if (
+        b1.classList.contains(piece) ||
+        c1.classList.contains(piece) ||
+        d1.classList.contains(piece)
+      ) {
+        movesArray = movesArray.filter((move) => move != "c1");
+        movesArray = movesArray.filter((move) => move != "d1");
+      }
+    });
+  }
+  if (movesArray.includes("f8") && movesArray.includes("g8")) {
+    const f8 = document.getElementById("f8");
+    const g8 = document.getElementById("g8");
+    blackPiecesArray.forEach((piece) => {
+      if (f8.classList.contains(piece) || g8.classList.contains(piece)) {
+        movesArray = movesArray.filter((move) => move != "f8");
+        movesArray = movesArray.filter((move) => move != "g8");
+      }
+    });
+  }
+  if (movesArray.includes("c8") && movesArray.includes("d8")) {
+    const b8 = document.getElementById("a2");
+    const c8 = document.getElementById("a3");
+    const d8 = document.getElementById("a4");
+    blackPiecesArray.forEach((piece) => {
+      if (
+        b8.classList.contains(piece) ||
+        c8.classList.contains(piece) ||
+        d8.classList.contains(piece)
+      ) {
+        movesArray = movesArray.filter((move) => move != "c8");
+        movesArray = movesArray.filter((move) => move != "d8");
+      }
+    });
+  }
+  return movesArray;
+}
+
+function Castle(lastSquare,squareparam){
+  if(lastSquare.classList.contains('wking') && lastSquare.id == 'e1' 
+      && squareparam.id == 'g1'&& isWCastlingPossibleH){
+      const rook = document.getElementById('h1')
+      document.getElementById('f1').classList = rook.classList;
+      rook.classList = [];
+      }
+  if(lastSquare.classList.contains('wking') && lastSquare.id == 'e1' 
+      && squareparam.id == 'c1'&& isWCastlingPossibleA){
+      const rook = document.getElementById('a1')
+      document.getElementById('d1').classList = rook.classList;
+      rook.classList = [];
+      }
+  if(lastSquare.classList.contains('bking') && lastSquare.id == 'e8' 
+      && squareparam.id == 'g8'&& isBCastlingPossibleH){
+      const rook = document.getElementById('h8')
+      document.getElementById('f8').classList = rook.classList;
+      rook.classList = [];
+      }
+  if(lastSquare.classList.contains('bking') && lastSquare.id == 'e8' 
+      && squareparam.id == 'c8'&& isBCastlingPossibleH){
+      const rook = document.getElementById('a8')
+      document.getElementById('d8').classList = rook.classList;
+      rook.classList = [];
+      }
+      
+}
+//#endregion
+//////////////////////////////////////////////////
 //#region //~ Move Pieces
 function MovePieces(lastSquare, squareparam) {
+  Castle(lastSquare,squareparam);
+  ChangeCastling(lastSquare);
   ShowEnPassantHelper(lastSquare, squareparam);
   if (squareparam.classList.contains("en-passant-invisible")) {
     movedPawnSquare.classList = [];
@@ -718,6 +884,8 @@ function MovePieces(lastSquare, squareparam) {
 //#region //? Event handler and main code
 squares.forEach((square) => {
   square.addEventListener("click", () => {
+    if(!isWhiteTurn) bCheck = false;
+    else wCheck = false;
     let clickedPieceName = GetClickedPieceName(square);
     let clickedPieceColor = GetClickedPieceColor(clickedPieceName);
     ResetSelected();
@@ -730,7 +898,7 @@ squares.forEach((square) => {
       ResetCaptures();
       ShowSelected(square, clickedPieceName);
       let legalMoves = GetMovesArray(square, clickedPieceName);
-      legalMoves = OnlyAllowMoveNoCheck(legalMoves);
+      legalMoves = OnlyAllowMoveNoCheck(legalMoves, square, clickedPieceName);
       filterCaptures(legalMoves);
       ShowLegal(legalMoves);
       ShowCaptures();
@@ -749,10 +917,12 @@ squares.forEach((square) => {
         MovePieces(lastSquare, square);
       }
       moved = true;
+      turn++;
       isWhiteTurn = !isWhiteTurn;
+      showToMoveText(isWhiteTurn);
       ResetLegalAndPromotion();
-      resetCheck(isWhiteTurn)
-      ShowCheck(isWhiteTurn);
+      resetCheck(isWhiteTurn);
+      ShowCheck(isWhiteTurn, false, false);
     }
     if (moved || clickedPieceName == 0) {
       ResetLegalAndPromotion();
@@ -760,6 +930,8 @@ squares.forEach((square) => {
       ResetSelected();
     }
     lastcolor = clickedPieceColor;
+    ShowTurn();
+    checkWin()
   });
 });
 //#endregion
@@ -775,8 +947,6 @@ function Reset() {
   moved = false;
   captures = [];
   isWhiteTurn = true;
-  whiteWinCheck = 0;
-  blackWinCheck = 0;
   switched = false;
   isWCastlingPossibleH = true;
   isWCastlingPossibleA = true;
@@ -787,6 +957,65 @@ function Reset() {
   shownIndex = 0;
   isFirstTime = true;
   turn = 0;
+  ShowTurn();
+  showToMoveText(isWhiteTurn);
+  wCheck = false;
+  bCheck = false;
 }
 //#endregion
 
+//#region //^ To move text
+function showToMoveText(isWhiteTurn) {
+  if (isWhiteTurn) {
+    whiteText.classList.remove("invisible");
+    blackText.classList.add("invisible");
+  } else {
+    blackText.classList.remove("invisible");
+    whiteText.classList.add("invisible");
+  }
+}
+//#endregion
+//region //~wincheck
+function LegalMovesLeft(color){
+  let areMovesLeft = false;
+  if(color == 'white'){
+    whitePieces.forEach(piece =>{
+      // let square = document.querySelector(piece);
+      const pieceName = GetClickedPieceName(piece);
+      let legalMoves = GetMovesArray(piece, piece);
+      legalMoves = OnlyAllowMoveNoCheck(legalMoves, piece, pieceName, true);
+      captures = [];
+      if(legalMoves.length> 0) areMovesLeft = true; 
+    });
+  }
+  else{
+    blackPieces.forEach(piece =>{
+      // const square = document.querySelector(piece);
+      const pieceName = GetClickedPieceName(piece);
+      let legalMoves = GetMovesArray(piece, pieceName);
+      legalMoves = OnlyAllowMoveNoCheck(legalMoves, piece, pieceName, true);
+      captures = [];
+      if(legalMoves.length > 0) areMovesLeft = true; 
+    });
+  }
+  return areMovesLeft;
+}
+function checkWin() {
+  let whiteWinCheck = false;
+  let blackWinCheck = false;
+  if (wCheck && !LegalMovesLeft('white')) blackWinCheck = true;
+  if (bCheck && !LegalMovesLeft('black')) whiteWinCheck = true;
+  if (whiteWinCheck) {
+    centerText.textContent = "White Wins";
+    win.classList.remove("invisible");
+    win.style.fontSize = '0';
+    overlay.classList.remove("invisible");
+  }
+  if (blackWinCheck) {
+    centerText.textContent = "Black Wins";
+    win.classList.remove("invisible");
+    win.style.fontSize = '2rem';
+    overlay.classList.remove("invisible");
+  }
+}
+//#endregion

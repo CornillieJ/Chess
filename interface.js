@@ -105,3 +105,40 @@ function GoForwardInHistoryDebounce(){
     setTimeout(() => { rightCanActivate = true }, 100);
   }
 }
+
+
+function SwitchBoard() {
+  if (!switched) {
+    table.classList.remove("rotated-full");
+    table.classList.add("rotated");
+    tableCells.forEach((cell) => {
+      cell.classList.add("rotated-cells");
+    });
+    // table.style.transform = "rotate(180deg)";
+    // tableCells.forEach(cell=>{cell.style.transform = "rotate(180deg)";});
+    switched = true;
+  } else {
+    table.classList.add("rotated-full");
+    table.classList.remove("rotated");
+    tableCells.forEach((cell) => {
+      cell.classList.remove("rotated-cells");
+    });
+    // table.style.transform = "none";
+    // tableCells.forEach(cell=>{cell.style.transform = "none";});
+    switched = false;
+  }
+}
+
+function showToMoveText(isWhiteTurn) {
+  if (isWhiteTurn) {
+    whiteText.classList.remove("invisible");
+    blackText.classList.add("invisible");
+  } else {
+    blackText.classList.remove("invisible");
+    whiteText.classList.add("invisible");
+  }
+}
+
+function ShowTurn(){
+  turnText.textContent = Math.round(turn/2);
+}
