@@ -1,8 +1,20 @@
 "use strict";
 
+// Red (!)
+// Blue (?)
+// Green (*)
+// Yellow (^)
+// Pink (&)
+// Purple (~)
+// Mustard (todo)
+// Grey (//)
+
+
 ///////////////////////////////////
 ///////////variables///////////////
 ///////-----------------///////////
+
+//#region //! variables
 let initialTdClasses = [];
 const table = document.querySelector("table");
 const tableCells = document.querySelectorAll("td");
@@ -15,11 +27,10 @@ let allPieces = document.querySelectorAll(
 let whitePieces = document.querySelectorAll(
   ".wpawn, .wrook, .wbishop, .wknight, .wqueen, .wking"
 );
-
 let blackPieces = document.querySelectorAll(
   ".bpawn, .brook, .bbishop, .bknight, .bqueen, .bking"
 );
-let squares = document.querySelectorAll("td");
+const squares = document.querySelectorAll("td");
 const centerText = document.querySelector(".center-text");
 const whiteText = document.querySelector(".white-text");
 const blackText = document.querySelector(".black-text");
@@ -66,13 +77,16 @@ let moved = false;
 let captures = [];
 let lastcolor = "white";
 let movedPawnSquare;
+
+//#endregion
 ///////-----------------///////////
 ///////////variables///////////////
 ///////////////////////////////////
 
 ///////////////////////////////////
 ///////////functions///////////////
-///////-----------------///////////
+///////-----------------/////////// 
+//#region //? GetClicked name and color
 function GetClickedPieceName(squareparam) {
   let found = 0;
   piecesArray.forEach((piece) => {
@@ -85,7 +99,9 @@ function GetClickedPieceColor(clickedPieceName) {
     return clickedPieceName.charAt(0) == "w" ? "white" : "black";
   else return 0;
 }
-//////
+//#endregion
+///////////////////////////////////////////////////
+//#region //* selected
 function ResetSelected() {
   lastSquare.classList.remove("selected");
 }
@@ -96,7 +112,9 @@ function ShowSelected(squareparam, clickedPiece) {
     lastSquare = squareparam;
   }
 }
-//////
+//#endregion
+///////////////////////////////////////////////////
+//#region //^ legal
 function ResetLegalAndPromotion() {
   squares.forEach((square) => {
     square.classList.remove("legal");
@@ -109,8 +127,9 @@ function ShowLegal(legalMovesArray) {
     document.getElementById(legalID).classList.add("legal");
   });
 }
-////
-
+//#endregion
+///////////////////////////////////////////////////
+//#region //& Captures
 function ResetCaptures() {
   captures.forEach((id) => {
     document.getElementById(id).classList.remove("capture");
@@ -123,7 +142,9 @@ function ShowCaptures() {
     document.getElementById(id).classList.add("capture");
   });
 }
-/////
+//#endregion
+///////////////////////////////////////////////////
+//#region //~ Promotion
 function ShowWPromotion(wPawnMovesArray) {
   wPawnMovesArray.forEach((move) => {
     if (parseInt(move.slice(1), 10) == 8) {
@@ -149,11 +170,9 @@ function PromotePawn(squareparam) {
     squareparam.classList.add("bqueen");
   }
 }
-///////
-//////
-/////
-
-////
+//#endregion
+///////////////////////////////////////////////////
+//#region //! GetMovesArray
 function GetMovesArray(square, clickedPieceName) {
   let movesArray = [];
   let char = square.id.charAt(0);
@@ -199,7 +218,9 @@ function GetMovesArray(square, clickedPieceName) {
   }
   return movesArray;
 }
+//#endregion 
 //////////////////////////////////////////////////////////////////////////////////////////
+//#region //? FilterMoves
 function filterMovesForAllPieces(array) {
   let filteredArray = array;
   array.forEach((id) => {
@@ -242,6 +263,9 @@ function filterMovesForBlackPieces(array) {
   });
   return filteredArray;
 }
+//#endregion
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//#region //* GetBaseMoves
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function GetBaseBishopMoves(legalChar, legalNum, index, color) {
   const enemyColor = color == "white" ? "black" : "white";
@@ -306,7 +330,6 @@ function GetBaseBishopMoves(legalChar, legalNum, index, color) {
   legalMoves = legalMoves.concat(tempArray1, tempArray2);
   return legalMoves;
 }
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
 function GetBaseRookMoves(char, num, color) {
   const legalMoves = [];
@@ -421,11 +444,10 @@ function filterLegalMoves(legalMoves, color) {
   });
   return legalMoves;
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////
+//#endregion
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
+//#region //^ GetMoves
 function GetWPawnMoves(squareparam, char, num, index) {
   let wPawnMoves = [];
   if (num == 2) {
@@ -553,11 +575,13 @@ function GetBKingMoves(char, num, index) {
   let bKingMoves = GetBaseKingMoves(char, num, index, "black");
   return bKingMoves;
 }
+//#endregion
 /////////----------------------------------------------------------------------
+//#region //& En-Passant
 function ResetEnPassantHelper() {
-  let num = !isWhiteTurn ? 3:6;
+  let num = !isWhiteTurn ? 3 : 6;
   for (let i = 0; i < 8; i++) {
-    const element = document.getElementById(letters[i] + num)
+    const element = document.getElementById(letters[i] + num);
     element.classList.remove("en-passant-invisible");
   }
 }
@@ -581,8 +605,9 @@ function ShowEnPassantHelper(lastSquare, squareparam) {
     movedPawnSquare = squareparam;
   }
 }
+//#endregion
 //////////---------------------------------------------------------------------
-
+//#region //~ Move Pieces
 function MovePieces(lastSquare, squareparam) {
   ShowEnPassantHelper(lastSquare, squareparam);
   if (squareparam.classList.contains("en-passant-invisible")) {
@@ -592,10 +617,12 @@ function MovePieces(lastSquare, squareparam) {
   lastSquare.classList = [];
   ResetEnPassantHelper();
 }
+//#endregion
 ///////-----------------///////////
 ///////////functions///////////////
 ///////////////////////////////////
 
+//#region //! Event handler and main code
 squares.forEach((square) => {
   square.addEventListener("click", () => {
     let clickedPieceName = GetClickedPieceName(square);
@@ -638,6 +665,6 @@ squares.forEach((square) => {
     lastcolor = clickedPieceColor;
   });
 });
-
+//#endregion
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////
