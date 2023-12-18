@@ -863,6 +863,53 @@ function Castle(lastSquare,squareparam){
       
 }
 //#endregion
+/////////////////////////////////////////////////
+//#region //~wincheck
+function LegalMovesLeft(color){
+  let areMovesLeft = false;
+  if(color == 'white'){
+    whitePieces.forEach(piece =>{
+      // let square = document.querySelector(piece);
+      const pieceName = GetClickedPieceName(piece);
+      let legalMoves = GetMovesArray(piece, piece);
+      legalMoves = OnlyAllowMoveNoCheck(legalMoves, piece, pieceName, true);
+      captures = [];
+      if(legalMoves.length> 0) areMovesLeft = true; 
+    });
+  }
+  else{
+    blackPieces.forEach(piece =>{
+      // const square = document.querySelector(piece);
+      const pieceName = GetClickedPieceName(piece);
+      let legalMoves = GetMovesArray(piece, pieceName);
+      legalMoves = OnlyAllowMoveNoCheck(legalMoves, piece, pieceName, true);
+      captures = [];
+      if(legalMoves.length > 0) areMovesLeft = true; 
+    });
+  }
+  return areMovesLeft;
+}
+function checkWin() {
+  let whiteWinCheck = false;
+  let blackWinCheck = false;
+  if (wCheck && !LegalMovesLeft('white')) blackWinCheck = true;
+  if (bCheck && !LegalMovesLeft('black')) whiteWinCheck = true;
+  if (whiteWinCheck) {
+    centerText.textContent = "White Wins";
+    win.classList.remove("invisible");
+    win.style.fontSize = '0';
+    overlay.classList.remove("invisible");
+  }
+  if (blackWinCheck) {
+    centerText.textContent = "Black Wins";
+    win.classList.remove("invisible");
+    win.style.fontSize = '2rem';
+    overlay.classList.remove("invisible");
+  }
+}
+//#endregion
+
+
 //////////////////////////////////////////////////
 //#region //~ Move Pieces
 function MovePieces(lastSquare, squareparam) {
@@ -881,6 +928,7 @@ function MovePieces(lastSquare, squareparam) {
 //! /////////functions///////////////
 //! /////////////////////////////////
 
+saveSituationToHistory();
 //#region //? Event handler and main code
 squares.forEach((square) => {
   square.addEventListener("click", () => {
@@ -923,6 +971,7 @@ squares.forEach((square) => {
       ResetLegalAndPromotion();
       resetCheck(isWhiteTurn);
       ShowCheck(isWhiteTurn, false, false);
+      saveSituationToHistory();
     }
     if (moved || clickedPieceName == 0) {
       ResetLegalAndPromotion();
@@ -975,47 +1024,58 @@ function showToMoveText(isWhiteTurn) {
   }
 }
 //#endregion
-//region //~wincheck
-function LegalMovesLeft(color){
-  let areMovesLeft = false;
-  if(color == 'white'){
-    whitePieces.forEach(piece =>{
-      // let square = document.querySelector(piece);
-      const pieceName = GetClickedPieceName(piece);
-      let legalMoves = GetMovesArray(piece, piece);
-      legalMoves = OnlyAllowMoveNoCheck(legalMoves, piece, pieceName, true);
-      captures = [];
-      if(legalMoves.length> 0) areMovesLeft = true; 
-    });
-  }
-  else{
-    blackPieces.forEach(piece =>{
-      // const square = document.querySelector(piece);
-      const pieceName = GetClickedPieceName(piece);
-      let legalMoves = GetMovesArray(piece, pieceName);
-      legalMoves = OnlyAllowMoveNoCheck(legalMoves, piece, pieceName, true);
-      captures = [];
-      if(legalMoves.length > 0) areMovesLeft = true; 
-    });
-  }
-  return areMovesLeft;
+
+//#region //& history
+function FillCurrentSituation() {
+  squares.forEach((square) => {
+    let filteredClassName = Array.from(square.className);
+    filteredClassName = filteredClassName.filter(name => name != "rotated-cells")
+    filteredClassName = filteredClassName.join(" ");
+    currentSituation.push(square.className);
+  });
 }
-function checkWin() {
-  let whiteWinCheck = false;
-  let blackWinCheck = false;
-  if (wCheck && !LegalMovesLeft('white')) blackWinCheck = true;
-  if (bCheck && !LegalMovesLeft('black')) whiteWinCheck = true;
-  if (whiteWinCheck) {
-    centerText.textContent = "White Wins";
-    win.classList.remove("invisible");
-    win.style.fontSize = '0';
-    overlay.classList.remove("invisible");
+
+function saveSituationToHistory() {
+  if(!isFirstTime){
+    shownIndex++;
+    currentIndex = shownIndex;
   }
-  if (blackWinCheck) {
-    centerText.textContent = "Black Wins";
-    win.classList.remove("invisible");
-    win.style.fontSize = '2rem';
-    overlay.classList.remove("invisible");
+  currentSituation = [];
+  FillCurrentSituation();
+  history[currentIndex] = currentSituation;
+  // shownIndex++;
+  isFirstTime = false
+}
+function GoBackInHistory() {
+  if (shownIndex > 0) {
+    shownIndex--;
+    turn --;
+    GetHistory();
   }
 }
+function GoForwardInHistory() {
+  if (shownIndex < currentIndex) {
+    shownIndex++;
+    turn++;
+    GetHistory();
+  }
+}
+function GetHistory() {
+  let i = 0;
+  const newSituation = history[shownIndex];
+  squares.forEach((square) => {
+    square.className = newSituation[i];
+    if(switched) {
+      square.style.transition = "0s";
+      square.classList.add('rotated-cells');
+    }
+    else square.style.transition = null;
+    i++;
+  });
+  if (turn%2 === 0) isWhiteTurn = true;
+  else isWhiteTurn = false;
+  ShowTurn()
+  showToMoveText(isWhiteTurn)
+}
+
 //#endregion
