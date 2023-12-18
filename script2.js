@@ -972,6 +972,7 @@ squares.forEach((square) => {
       resetCheck(isWhiteTurn);
       ShowCheck(isWhiteTurn, false, false);
       saveSituationToHistory();
+      if (isPlayer2) SwitchBoard();
     }
     if (moved || clickedPieceName == 0) {
       ResetLegalAndPromotion();
