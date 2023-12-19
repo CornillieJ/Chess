@@ -1036,7 +1036,6 @@ function GetTrueMoves(
     case "wrook":
     case "brook":
       //
-      //TODO: make this function
       //
       let rookResult = [];
       const horizontalRook = legalMoves.slice(0, 7);

@@ -1,5 +1,10 @@
 "use strict";
-
+//TODO: 1 easy=> Add promotion choice
+//TODO: 2 easy=> Add stalemate option
+//TODO: 3 easy=> Add game wins counter
+//TODO: 4 easy=> Add slider to adjust Switchboard timing
+//TODO: 5 medium=> Add Timer
+//TODO: 10 extreme => Add AI 
 //region color code
 // Red (!)
 // Blue (?)
@@ -82,14 +87,12 @@ let checkMoves = [];
 let switched = false;
 let wCheck = false;
 let bCheck = false;
-//TODO
 let history = [];
 let currentSituation = [];
 let currentIndex = 0;
 let shownIndex = 0;
 let turn = 0;
 let isFirstTime = true;
-
 
 let isWCastlingPossibleH = true;
 let isWCastlingPossibleA = true;
@@ -658,7 +661,7 @@ function ShowCheck(turn, override, piece) {
         if (document.getElementById(move).classList.contains(piece2)) {
           king.classList.add("check");
           checkMoves = [];
-          if(!override) wCheck = true;
+          if (!override) wCheck = true;
           check = true;
         }
       });
@@ -674,7 +677,7 @@ function ShowCheck(turn, override, piece) {
         if (document.getElementById(move).classList.contains(piece2)) {
           king.classList.add("check");
           checkMoves = [];
-          if(!override) bCheck = true;
+          if (!override) bCheck = true;
           check = true;
         }
       });
@@ -696,13 +699,13 @@ function filterCaptures(movesArray) {
 //#region //~Limit moves by check
 function OnlyAllowMoveNoCheck(movesArray, squareparam, pieceName, winCheck) {
   let pieceToCheck = lastSquare;
-  if(winCheck) pieceToCheck = squareparam;
+  if (winCheck) pieceToCheck = squareparam;
   const wKing = document.querySelector(".wking");
   const bKing = document.querySelector(".bking");
   const wKingClassList = Array.from(wKing.classList);
   const bKingClassList = Array.from(bKing.classList);
-  wKing.classList.remove('check');
-  bKing.classList.remove('check');
+  wKing.classList.remove("check");
+  bKing.classList.remove("check");
   movesArray.forEach((move) => {
     const moveSquare = document.getElementById(move);
     moveSquare.classList.forEach;
@@ -835,56 +838,70 @@ function FilterCastle(movesArray) {
   return movesArray;
 }
 
-function Castle(lastSquare,squareparam){
-  if(lastSquare.classList.contains('wking') && lastSquare.id == 'e1' 
-      && squareparam.id == 'g1'&& isWCastlingPossibleH){
-      const rook = document.getElementById('h1')
-      document.getElementById('f1').classList = rook.classList;
-      rook.classList = [];
-      }
-  if(lastSquare.classList.contains('wking') && lastSquare.id == 'e1' 
-      && squareparam.id == 'c1'&& isWCastlingPossibleA){
-      const rook = document.getElementById('a1')
-      document.getElementById('d1').classList = rook.classList;
-      rook.classList = [];
-      }
-  if(lastSquare.classList.contains('bking') && lastSquare.id == 'e8' 
-      && squareparam.id == 'g8'&& isBCastlingPossibleH){
-      const rook = document.getElementById('h8')
-      document.getElementById('f8').classList = rook.classList;
-      rook.classList = [];
-      }
-  if(lastSquare.classList.contains('bking') && lastSquare.id == 'e8' 
-      && squareparam.id == 'c8'&& isBCastlingPossibleH){
-      const rook = document.getElementById('a8')
-      document.getElementById('d8').classList = rook.classList;
-      rook.classList = [];
-      }
-      
+function Castle(lastSquare, squareparam) {
+  if (
+    lastSquare.classList.contains("wking") &&
+    lastSquare.id == "e1" &&
+    squareparam.id == "g1" &&
+    isWCastlingPossibleH
+  ) {
+    const rook = document.getElementById("h1");
+    document.getElementById("f1").classList = rook.classList;
+    rook.classList = [];
+  }
+  if (
+    lastSquare.classList.contains("wking") &&
+    lastSquare.id == "e1" &&
+    squareparam.id == "c1" &&
+    isWCastlingPossibleA
+  ) {
+    const rook = document.getElementById("a1");
+    document.getElementById("d1").classList = rook.classList;
+    rook.classList = [];
+  }
+  if (
+    lastSquare.classList.contains("bking") &&
+    lastSquare.id == "e8" &&
+    squareparam.id == "g8" &&
+    isBCastlingPossibleH
+  ) {
+    const rook = document.getElementById("h8");
+    document.getElementById("f8").classList = rook.classList;
+    rook.classList = [];
+  }
+  if (
+    lastSquare.classList.contains("bking") &&
+    lastSquare.id == "e8" &&
+    squareparam.id == "c8" &&
+    isBCastlingPossibleH
+  ) {
+    const rook = document.getElementById("a8");
+    document.getElementById("d8").classList = rook.classList;
+    rook.classList = [];
+  }
 }
 //#endregion
 /////////////////////////////////////////////////
 //#region //~wincheck
-function LegalMovesLeft(color){
+function LegalMovesLeft(color) {
   let areMovesLeft = false;
-  if(color == 'white'){
-    whitePieces.forEach(piece =>{
+  if (color == "white") {
+    whitePieces.forEach((piece) => {
       // let square = document.querySelector(piece);
       const pieceName = GetClickedPieceName(piece);
       let legalMoves = GetMovesArray(piece, piece);
       legalMoves = OnlyAllowMoveNoCheck(legalMoves, piece, pieceName, true);
       captures = [];
-      if(legalMoves.length> 0) areMovesLeft = true; 
+      if (legalMoves.length > 0) areMovesLeft = true;
     });
-  }
-  else{
-    blackPieces.forEach(piece =>{
+  } else {
+    blackPieces.forEach((piece) => {
       // const square = document.querySelector(piece);
       const pieceName = GetClickedPieceName(piece);
       let legalMoves = GetMovesArray(piece, pieceName);
       legalMoves = OnlyAllowMoveNoCheck(legalMoves, piece, pieceName, true);
       captures = [];
-      if(legalMoves.length > 0) areMovesLeft = true; 
+      if (legalMoves.length > 0) areMovesLeft = true;
     });
   }
   return areMovesLeft;
@@ -892,28 +909,27 @@ function LegalMovesLeft(color){
 function checkWin() {
   let whiteWinCheck = false;
   let blackWinCheck = false;
-  if (wCheck && !LegalMovesLeft('white')) blackWinCheck = true;
-  if (bCheck && !LegalMovesLeft('black')) whiteWinCheck = true;
+  if (wCheck && !LegalMovesLeft("white")) blackWinCheck = true;
+  if (bCheck && !LegalMovesLeft("black")) whiteWinCheck = true;
   if (whiteWinCheck) {
     centerText.textContent = "White Wins";
     win.classList.remove("invisible");
-    win.style.fontSize = '0';
+    win.style.fontSize = "0";
     overlay.classList.remove("invisible");
   }
   if (blackWinCheck) {
     centerText.textContent = "Black Wins";
     win.classList.remove("invisible");
-    win.style.fontSize = '2rem';
+    win.style.fontSize = "2rem";
     overlay.classList.remove("invisible");
   }
 }
 //#endregion
 
-
 //////////////////////////////////////////////////
 //#region //~ Move Pieces
 function MovePieces(lastSquare, squareparam) {
-  Castle(lastSquare,squareparam);
+  Castle(lastSquare, squareparam);
   ChangeCastling(lastSquare);
   ShowEnPassantHelper(lastSquare, squareparam);
   if (squareparam.classList.contains("en-passant-invisible")) {
@@ -932,7 +948,7 @@ saveSituationToHistory();
 //#region //? Event handler and main code
 squares.forEach((square) => {
   square.addEventListener("click", () => {
-    if(!isWhiteTurn) bCheck = false;
+    if (!isWhiteTurn) bCheck = false;
     else wCheck = false;
     let clickedPieceName = GetClickedPieceName(square);
     let clickedPieceColor = GetClickedPieceColor(clickedPieceName);
@@ -981,7 +997,7 @@ squares.forEach((square) => {
     }
     lastcolor = clickedPieceColor;
     ShowTurn();
-    checkWin()
+    checkWin();
   });
 });
 //#endregion
@@ -1030,14 +1046,16 @@ function showToMoveText(isWhiteTurn) {
 function FillCurrentSituation() {
   squares.forEach((square) => {
     let filteredClassName = Array.from(square.className);
-    filteredClassName = filteredClassName.filter(name => name != "rotated-cells")
+    filteredClassName = filteredClassName.filter(
+      (name) => name != "rotated-cells"
+    );
     filteredClassName = filteredClassName.join(" ");
     currentSituation.push(square.className);
   });
 }
 
 function saveSituationToHistory() {
-  if(!isFirstTime){
+  if (!isFirstTime) {
     shownIndex++;
     currentIndex = shownIndex;
   }
@@ -1045,12 +1063,12 @@ function saveSituationToHistory() {
   FillCurrentSituation();
   history[currentIndex] = currentSituation;
   // shownIndex++;
-  isFirstTime = false
+  isFirstTime = false;
 }
 function GoBackInHistory() {
   if (shownIndex > 0) {
     shownIndex--;
-    turn --;
+    turn--;
     GetHistory();
   }
 }
@@ -1066,17 +1084,16 @@ function GetHistory() {
   const newSituation = history[shownIndex];
   squares.forEach((square) => {
     square.className = newSituation[i];
-    if(switched) {
+    if (switched) {
       square.style.transition = "0s";
-      square.classList.add('rotated-cells');
-    }
-    else square.style.transition = null;
+      square.classList.add("rotated-cells");
+    } else square.style.transition = null;
     i++;
   });
-  if (turn%2 === 0) isWhiteTurn = true;
+  if (turn % 2 === 0) isWhiteTurn = true;
   else isWhiteTurn = false;
-  ShowTurn()
-  showToMoveText(isWhiteTurn)
+  ShowTurn();
+  showToMoveText(isWhiteTurn);
 }
 
 //#endregion
