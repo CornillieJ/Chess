@@ -5,7 +5,8 @@
 //TODO: 4 easy=> Add slider to adjust Switchboard timing
 //TODO: 5 medium=> Add Timer
 //TODO: 10 extreme => Add AI 
-//region color code
+
+//comments color code
 // Red (!)
 // Blue (?)
 // Green (*)
@@ -18,7 +19,6 @@
 //? /////////////////////////////////
 //? /////////variables///////////////
 //? /////-----------------///////////
-
 //#region //? variables
 let initialTdClasses = [];
 const table = document.querySelector("table");
@@ -107,7 +107,7 @@ let isBCastlingPossibleA = true;
 //! /////////////////////////////////
 //! /////////functions///////////////
 //! /////-----------------///////////
-//#region //? GetClicked name and color
+//#region //~ Get Clicked name and color
 function GetClickedPieceName(squareparam) {
   let found = 0;
   piecesArray.forEach((piece) => {
@@ -161,6 +161,13 @@ function ResetCaptures() {
 function ShowCaptures() {
   captures.forEach((id) => {
     document.getElementById(id).classList.add("capture");
+  });
+}
+
+function filterCaptures(movesArray) {
+  captures.forEach((capture) => {
+    if (!movesArray.includes(capture))
+      captures = captures.filter((move) => move != capture);
   });
 }
 //#endregion
@@ -638,7 +645,6 @@ function GetBKingMoves(char, num, index) {
 }
 //#endregion
 //////////////////////////////////////////////////
-//////////////////////////////////////////////////
 //#region //? show and reset Check
 function resetCheck(turn) {
   let king;
@@ -688,13 +694,6 @@ function ShowCheck(turn, override, piece) {
   return check;
 }
 //#endregion
-
-function filterCaptures(movesArray) {
-  captures.forEach((capture) => {
-    if (!movesArray.includes(capture))
-      captures = captures.filter((move) => move != capture);
-  });
-}
 //////////////////////////////////////////////////
 //#region //~Limit moves by check
 function OnlyAllowMoveNoCheck(movesArray, squareparam, pieceName, winCheck) {
@@ -925,7 +924,109 @@ function checkWin() {
   }
 }
 //#endregion
+//////////////////////////////////////////////////
+//#region //* Reset
+function Reset() {
+  if (switched) SwitchBoard();
+  initialTdClasses.forEach((tdInfo) => {
+    tdInfo.element.className = tdInfo.class;
+  });
+  showToMoveText(isWhiteTurn);
+  moved = false;
+  captures = [];
+  isWhiteTurn = true;
+  switched = false;
+  isWCastlingPossibleH = true;
+  isWCastlingPossibleA = true;
+  isBCastlingPossibleH = true;
+  isBCastlingPossibleA = true;
+  history = [];
+  currentIndex = 0;
+  shownIndex = 0;
+  isFirstTime = true;
+  turn = 0;
+  ShowTurn();
+  showToMoveText(isWhiteTurn);
+  wCheck = false;
+  bCheck = false;
+}
+//#endregion
+//////////////////////////////////////////////////
+//#region //^ To move text
+function showToMoveText(isWhiteTurn) {
+  if (isWhiteTurn) {
+    whiteText.classList.remove("invisible");
+    blackText.classList.add("invisible");
+  } else {
+    blackText.classList.remove("invisible");
+    whiteText.classList.add("invisible");
+  }
+}
+//#endregion
+//////////////////////////////////////////////////
+//#region //& history
+function showToMoveText(isWhiteTurn) {
+  if (isWhiteTurn) {
+    whiteText.classList.remove("invisible");
+    blackText.classList.add("invisible");
+  } else {
+    blackText.classList.remove("invisible");
+    whiteText.classList.add("invisible");
+  }
+}
+function FillCurrentSituation() {
+  squares.forEach((square) => {
+    let filteredClassName = Array.from(square.className);
+    filteredClassName = filteredClassName.filter(
+      (name) => name != "rotated-cells"
+    );
+    filteredClassName = filteredClassName.join(" ");
+    currentSituation.push(square.className);
+  });
+}
 
+function saveSituationToHistory() {
+  if (!isFirstTime) {
+    shownIndex++;
+    currentIndex = shownIndex;
+  }
+  currentSituation = [];
+  FillCurrentSituation();
+  history[currentIndex] = currentSituation;
+  // shownIndex++;
+  isFirstTime = false;
+}
+function GoBackInHistory() {
+  if (shownIndex > 0) {
+    shownIndex--;
+    turn--;
+    GetHistory();
+  }
+}
+function GoForwardInHistory() {
+  if (shownIndex < currentIndex) {
+    shownIndex++;
+    turn++;
+    GetHistory();
+  }
+}
+function GetHistory() {
+  let i = 0;
+  const newSituation = history[shownIndex];
+  squares.forEach((square) => {
+    square.className = newSituation[i];
+    if (switched) {
+      square.style.transition = "0s";
+      square.classList.add("rotated-cells");
+    } else square.style.transition = null;
+    i++;
+  });
+  if (turn % 2 === 0) isWhiteTurn = true;
+  else isWhiteTurn = false;
+  ShowTurn();
+  showToMoveText(isWhiteTurn);
+}
+//#endregion
 //////////////////////////////////////////////////
 //#region //~ Move Pieces
 function MovePieces(lastSquare, squareparam) {
@@ -944,8 +1045,12 @@ function MovePieces(lastSquare, squareparam) {
 //! /////////functions///////////////
 //! /////////////////////////////////
 
+
+//* /////////////////////////////////
+//* /////////Main Code///////////////
+//* /////-----------------///////////
 saveSituationToHistory();
-//#region //? Event handler and main code
+//#region //* Event handler and main code
 squares.forEach((square) => {
   square.addEventListener("click", () => {
     if (!isWhiteTurn) bCheck = false;
@@ -1001,99 +1106,8 @@ squares.forEach((square) => {
   });
 });
 //#endregion
+//* /////-----------------///////////
+//* /////////Main Code///////////////
+//* /////////////////////////////////
+
 /////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////
-//#region //* Reset
-function Reset() {
-  if (switched) SwitchBoard();
-  initialTdClasses.forEach((tdInfo) => {
-    tdInfo.element.className = tdInfo.class;
-  });
-  showToMoveText(isWhiteTurn);
-  moved = false;
-  captures = [];
-  isWhiteTurn = true;
-  switched = false;
-  isWCastlingPossibleH = true;
-  isWCastlingPossibleA = true;
-  isBCastlingPossibleH = true;
-  isBCastlingPossibleA = true;
-  history = [];
-  currentIndex = 0;
-  shownIndex = 0;
-  isFirstTime = true;
-  turn = 0;
-  ShowTurn();
-  showToMoveText(isWhiteTurn);
-  wCheck = false;
-  bCheck = false;
-}
-//#endregion
-
-//#region //^ To move text
-function showToMoveText(isWhiteTurn) {
-  if (isWhiteTurn) {
-    whiteText.classList.remove("invisible");
-    blackText.classList.add("invisible");
-  } else {
-    blackText.classList.remove("invisible");
-    whiteText.classList.add("invisible");
-  }
-}
-//#endregion
-
-//#region //& history
-function FillCurrentSituation() {
-  squares.forEach((square) => {
-    let filteredClassName = Array.from(square.className);
-    filteredClassName = filteredClassName.filter(
-      (name) => name != "rotated-cells"
-    );
-    filteredClassName = filteredClassName.join(" ");
-    currentSituation.push(square.className);
-  });
-}
-
-function saveSituationToHistory() {
-  if (!isFirstTime) {
-    shownIndex++;
-    currentIndex = shownIndex;
-  }
-  currentSituation = [];
-  FillCurrentSituation();
-  history[currentIndex] = currentSituation;
-  // shownIndex++;
-  isFirstTime = false;
-}
-function GoBackInHistory() {
-  if (shownIndex > 0) {
-    shownIndex--;
-    turn--;
-    GetHistory();
-  }
-}
-function GoForwardInHistory() {
-  if (shownIndex < currentIndex) {
-    shownIndex++;
-    turn++;
-    GetHistory();
-  }
-}
-function GetHistory() {
-  let i = 0;
-  const newSituation = history[shownIndex];
-  squares.forEach((square) => {
-    square.className = newSituation[i];
-    if (switched) {
-      square.style.transition = "0s";
-      square.classList.add("rotated-cells");
-    } else square.style.transition = null;
-    i++;
-  });
-  if (turn % 2 === 0) isWhiteTurn = true;
-  else isWhiteTurn = false;
-  ShowTurn();
-  showToMoveText(isWhiteTurn);
-}
-
-//#endregion
