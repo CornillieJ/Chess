@@ -1,6 +1,4 @@
 "use strict";
-//TODO: 1 easy=> Add promotion choice
-//TODO: 2 easy=> Add stalemate option
 //TODO: 3 easy=> Add game wins counter
 //TODO: 4 easy=> Add slider to adjust Switchboard timing
 //TODO: 5 medium=> Add Timer
@@ -30,7 +28,7 @@ let allPieces = document.querySelectorAll(
   ".chessboard .bpawn, .chessboard .brook, .chessboard .bbishop, .chessboard .bknight, .chessboard .bqueen, .chessboard .bking, .chessboard .wpawn, .chessboard .wrook, .chessboard .wbishop, .chessboard .wknight, .chessboard .wqueen, .chessboard .wking"
 );
 let whitePieces = document.querySelectorAll(
-  ".chessboard.wpawn, .chessboard .wrook, .chessboard .wbishop, .chessboard .wknight, .chessboard .wqueen, .chessboard .wking"
+  ".chessboard .wpawn, .chessboard .wrook, .chessboard .wbishop, .chessboard .wknight, .chessboard .wqueen, .chessboard .wking"
 );
 let blackPieces = document.querySelectorAll(
   ".chessboard .bpawn, .chessboard .brook, .chessboard .bbishop, .chessboard .bknight, .chessboard .bqueen, .chessboard .bking"
@@ -907,7 +905,7 @@ function LegalMovesLeft(color) {
     whitePieces.forEach((piece) => {
       // let square = document.querySelector(piece);
       const pieceName = GetClickedPieceName(piece);
-      let legalMoves = GetMovesArray(piece, piece);
+      let legalMoves = GetMovesArray(piece, pieceName);
       legalMoves = OnlyAllowMoveNoCheck(legalMoves, piece, pieceName, true);
       captures = [];
       if (legalMoves.length > 0) areMovesLeft = true;
@@ -927,18 +925,33 @@ function LegalMovesLeft(color) {
 function checkWin() {
   let whiteWinCheck = false;
   let blackWinCheck = false;
+  let stalemate = false;
   if (wCheck && !LegalMovesLeft("white")) blackWinCheck = true;
-  if (bCheck && !LegalMovesLeft("black")) whiteWinCheck = true;
+  else if (bCheck && !LegalMovesLeft("black")) whiteWinCheck = true;
+  else if (!bCheck && !isWhiteTurn){
+    if(!LegalMovesLeft("black"))
+      stalemate = true;
+  }
+  else if (!wCheck && isWhiteTurn ){
+    if(!LegalMovesLeft("white"))
+      stalemate = true;
+  }
   if (whiteWinCheck) {
     centerText.textContent = "White Wins";
     win.classList.remove("invisible");
-    win.style.fontSize = "0";
+    win.style.fontSize = "2rem";
     overlay.classList.remove("invisible");
   }
-  if (blackWinCheck) {
+  else if (blackWinCheck) {
     centerText.textContent = "Black Wins";
     win.classList.remove("invisible");
     win.style.fontSize = "2rem";
+    overlay.classList.remove("invisible");
+  }
+  else if (stalemate){
+    centerText.textContent = "Stalemate! No winner.";
+    win.classList.remove("invisible");
+    win.style.fontSize = "1.5rem";
     overlay.classList.remove("invisible");
   }
 }
@@ -1053,7 +1066,7 @@ function GetHistory() {
 //#region //? Fill Pieces
 function FillPieces() {
   whitePieces = document.querySelectorAll(
-    ".chessboard.wpawn, .chessboard .wrook, .chessboard .wbishop, .chessboard .wknight, .chessboard .wqueen, .chessboard .wking"
+    ".chessboard .wpawn, .chessboard .wrook, .chessboard .wbishop, .chessboard .wknight, .chessboard .wqueen, .chessboard .wking"
   );
   blackPieces = document.querySelectorAll(
     ".chessboard .bpawn, .chessboard .brook, .chessboard .bbishop, .chessboard .bknight, .chessboard .bqueen, .chessboard .bking"
