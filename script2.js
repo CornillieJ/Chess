@@ -1,6 +1,4 @@
 "use strict";
-//TODO: 3 easy=> Add game wins counter
-//TODO: 4 easy=> Add slider to adjust Switchboard timing
 //TODO: 5 medium=> Add Timer
 //TODO: 10 extreme => Add AI
 
