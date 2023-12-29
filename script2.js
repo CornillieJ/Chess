@@ -205,6 +205,7 @@ PromotionSquaresWhite.forEach((promotionpiece) => {
     lastSquare.classList = promotionpiece.classList;
     ClosePromotionWhite();
     saveSituationToHistory();
+    ShowCheck(isWhiteTurn, false, false);
   });
 });
 
@@ -213,6 +214,7 @@ PromotionSquaresBlack.forEach((promotionpiece) => {
     lastSquare.classList = promotionpiece.classList;
     ClosePromotionBlack();
     saveSituationToHistory();
+    ShowCheck(isWhiteTurn, false, false);
   });
 });
 //#endregion
