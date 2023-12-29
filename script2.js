@@ -20,7 +20,7 @@
 //#region //? variables
 let initialTdClasses = [];
 const table = document.querySelector("table");
-const tableCells = document.querySelectorAll("td");
+const tableCells = document.querySelectorAll(".chessboard td");
 tableCells.forEach((cell) => {
   initialTdClasses.push({ element: cell, class: cell.className });
 });
@@ -939,19 +939,19 @@ function checkWin() {
   if (whiteWinCheck) {
     centerText.textContent = "White Wins";
     win.classList.remove("invisible");
-    win.style.fontSize = "2rem";
+    // win.style.fontSize = "2rem";
     overlay.classList.remove("invisible");
   }
   else if (blackWinCheck) {
     centerText.textContent = "Black Wins";
     win.classList.remove("invisible");
-    win.style.fontSize = "2rem";
+    // win.style.fontSize = "2rem";
     overlay.classList.remove("invisible");
   }
   else if (stalemate){
     centerText.textContent = "Stalemate! No winner.";
     win.classList.remove("invisible");
-    win.style.fontSize = "1.5rem";
+    // win.style.fontSize = "1.5rem";
     overlay.classList.remove("invisible");
   }
 }
