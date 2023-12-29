@@ -4,7 +4,7 @@
 //TODO: 3 easy=> Add game wins counter
 //TODO: 4 easy=> Add slider to adjust Switchboard timing
 //TODO: 5 medium=> Add Timer
-//TODO: 10 extreme => Add AI 
+//TODO: 10 extreme => Add AI
 
 //comments color code
 // Red (!)
@@ -27,15 +27,17 @@ tableCells.forEach((cell) => {
   initialTdClasses.push({ element: cell, class: cell.className });
 });
 let allPieces = document.querySelectorAll(
-  ".bpawn, .brook, .bbishop, .bknight, .bqueen, .bking, .wpawn, .wrook, .wbishop, .wknight, .wqueen, .wking"
+  ".chessboard .bpawn, .chessboard .brook, .chessboard .bbishop, .chessboard .bknight, .chessboard .bqueen, .chessboard .bking, .chessboard .wpawn, .chessboard .wrook, .chessboard .wbishop, .chessboard .wknight, .chessboard .wqueen, .chessboard .wking"
 );
 let whitePieces = document.querySelectorAll(
-  ".wpawn, .wrook, .wbishop, .wknight, .wqueen, .wking"
+  ".chessboard.wpawn, .chessboard .wrook, .chessboard .wbishop, .chessboard .wknight, .chessboard .wqueen, .chessboard .wking"
 );
 let blackPieces = document.querySelectorAll(
-  ".bpawn, .brook, .bbishop, .bknight, .bqueen, .bking"
+  ".chessboard .bpawn, .chessboard .brook, .chessboard .bbishop, .chessboard .bknight, .chessboard .bqueen, .chessboard .bking"
 );
-const squares = document.querySelectorAll("td");
+const squares = document.querySelectorAll(".chessboard td");
+const PromotionSquaresWhite = document.querySelectorAll(".promotion-white td");
+const PromotionSquaresBlack = document.querySelectorAll(".promotion-black td");
 const centerText = document.querySelector(".center-text");
 const whiteText = document.querySelector(".white-text");
 const blackText = document.querySelector(".black-text");
@@ -152,8 +154,8 @@ function ShowLegal(legalMovesArray) {
 ///////////////////////////////////////////////////
 //#region //& Captures
 function ResetCaptures() {
-  captures.forEach((id) => {
-    document.getElementById(id).classList.remove("capture");
+  squares.forEach((square) => {
+    square.classList.remove("capture");
   });
   captures = [];
 }
@@ -191,13 +193,28 @@ function PromotePawn(squareparam) {
   let color = "white";
   if (parseInt(squareparam.id.slice(1), 10) == 1) color = "black";
   if (color == "white") {
-    squareparam.classList.remove("wpawn");
-    squareparam.classList.add("wqueen");
+    OpenPromotionWhite();
   } else {
-    squareparam.classList.remove("bpawn");
-    squareparam.classList.add("bqueen");
+    OpenPromotionBlack();
   }
+  lastSquare = squareparam;
 }
+
+PromotionSquaresWhite.forEach((promotionpiece) => {
+  promotionpiece.addEventListener("click", () => {
+    lastSquare.classList = promotionpiece.classList;
+    ClosePromotionWhite();
+    saveSituationToHistory();
+  });
+});
+
+PromotionSquaresBlack.forEach((promotionpiece) => {
+  promotionpiece.addEventListener("click", () => {
+    lastSquare.classList = promotionpiece.classList;
+    ClosePromotionBlack();
+    saveSituationToHistory();
+  });
+});
 //#endregion
 ///////////////////////////////////////////////////
 //#region //! GetMovesArray
@@ -991,6 +1008,7 @@ function saveSituationToHistory() {
     currentIndex = shownIndex;
   }
   currentSituation = [];
+  ResetCaptures();
   FillCurrentSituation();
   history[currentIndex] = currentSituation;
   // shownIndex++;
@@ -1000,6 +1018,7 @@ function GoBackInHistory() {
   if (shownIndex > 0) {
     shownIndex--;
     turn--;
+    ResetCaptures();
     GetHistory();
   }
 }
@@ -1007,6 +1026,7 @@ function GoForwardInHistory() {
   if (shownIndex < currentIndex) {
     shownIndex++;
     turn++;
+    ResetCaptures();
     GetHistory();
   }
 }
@@ -1028,6 +1048,18 @@ function GetHistory() {
 }
 //#endregion
 //////////////////////////////////////////////////
+//#region //? Fill Pieces
+function FillPieces() {
+  whitePieces = document.querySelectorAll(
+    ".chessboard.wpawn, .chessboard .wrook, .chessboard .wbishop, .chessboard .wknight, .chessboard .wqueen, .chessboard .wking"
+  );
+  blackPieces = document.querySelectorAll(
+    ".chessboard .bpawn, .chessboard .brook, .chessboard .bbishop, .chessboard .bknight, .chessboard .bqueen, .chessboard .bking"
+  );
+}
+//#endregion
+////////////////////////////////////////////////////////////////////
+
 //#region //~ Move Pieces
 function MovePieces(lastSquare, squareparam) {
   Castle(lastSquare, squareparam);
@@ -1045,7 +1077,6 @@ function MovePieces(lastSquare, squareparam) {
 //! /////////functions///////////////
 //! /////////////////////////////////
 
-
 //* /////////////////////////////////
 //* /////////Main Code///////////////
 //* /////-----------------///////////
@@ -1053,6 +1084,7 @@ saveSituationToHistory();
 //#region //* Event handler and main code
 squares.forEach((square) => {
   square.addEventListener("click", () => {
+    ResetCaptures();
     if (!isWhiteTurn) bCheck = false;
     else wCheck = false;
     let clickedPieceName = GetClickedPieceName(square);
@@ -1064,7 +1096,6 @@ squares.forEach((square) => {
     ) {
       ResetSelected();
       ResetLegalAndPromotion();
-      ResetCaptures();
       ShowSelected(square, clickedPieceName);
       let legalMoves = GetMovesArray(square, clickedPieceName);
       legalMoves = OnlyAllowMoveNoCheck(legalMoves, square, clickedPieceName);
@@ -1099,6 +1130,7 @@ squares.forEach((square) => {
       ResetLegalAndPromotion();
       ResetCaptures();
       ResetSelected();
+      FillPieces();
     }
     lastcolor = clickedPieceColor;
     ShowTurn();

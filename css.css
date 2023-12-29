@@ -50,14 +50,14 @@ main {
 article {
   position: relative;
 }
-table {
+.chessboard {
   border-collapse: collapse;
   padding: 0;
   margin: 0;
   width: 90vh;
   height: 90vh;
 }
-td {
+.chessboard td {
   width: 12.5%;
   border: 1px solid black;
   position: relative;
@@ -77,6 +77,40 @@ td {
   z-index: 10;
   font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
   color: gray;
+}
+.promotion-white{
+  position: absolute;
+  width: 40vw;
+  height: 40vh;
+  border-radius: 20px;
+  box-shadow: 0 3rem 5rem rgba(0, 0, 0, 0.3);
+  background-color: rgb(255, 255, 255);
+  z-index: 10;
+  font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+  color: gray;
+}
+.promotion-white table{
+  border-collapse: collapse;
+  width: 100%;
+  height: 80%;
+  margin: 80 auto 0 auto;
+}
+.promotion-black{
+  position: absolute;
+  width: 40vw;
+  height: 40vh;
+  border-radius: 20px;
+  box-shadow: 0 3rem 5rem rgba(0, 0, 0, 0.3);
+  background-color: rgb(255, 255, 255);
+  z-index: 10;
+  font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+  color: gray;
+}
+.promotion-black table{
+  border-collapse: collapse;
+  width: 100%;
+  height: 80%;
+  margin: 80 auto 0 auto;
 }
 .center-text {
   font-size: 3rem;
@@ -202,10 +236,6 @@ td {
   .win {
     width: 80vw;
     height: 60vh;
-  }
-  table {
-    width: 100vw;
-    height: 100vw;
   }
   article {
     text-align: center;

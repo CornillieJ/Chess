@@ -1394,14 +1394,6 @@ function UpgradePawn(square){
   }
 }
 
-
-
-
-
-
-
-
-
 function Reset() {
   if (switched) SwitchBoard();
   initialTdClasses.forEach((tdInfo) => {
