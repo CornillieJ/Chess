@@ -345,6 +345,13 @@ article {
     font-size: 1rem;
     height: 25vh;
   }
+  .rotated {
+    transform: rotate(0deg);
+    /* transition: transform 1s; */
+  }
+  .rotated-cells{
+    transition: transform 0s;
+  }
 }
 
 tr.even td:nth-child(2n) {
