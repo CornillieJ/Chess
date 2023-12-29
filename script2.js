@@ -93,12 +93,13 @@ let currentIndex = 0;
 let shownIndex = 0;
 let turn = 0;
 let isFirstTime = true;
-
 let isWCastlingPossibleH = true;
 let isWCastlingPossibleA = true;
 let isBCastlingPossibleH = true;
 let isBCastlingPossibleA = true;
 
+let scoreWhite = 0;
+let scoreBlack = 0;
 //#endregion
 //? /////-----------------///////////
 //? /////////variables///////////////
@@ -928,27 +929,26 @@ function checkWin() {
   let stalemate = false;
   if (wCheck && !LegalMovesLeft("white")) blackWinCheck = true;
   else if (bCheck && !LegalMovesLeft("black")) whiteWinCheck = true;
-  else if (!bCheck && !isWhiteTurn){
-    if(!LegalMovesLeft("black"))
-      stalemate = true;
-  }
-  else if (!wCheck && isWhiteTurn ){
-    if(!LegalMovesLeft("white"))
-      stalemate = true;
+  else if (!bCheck && !isWhiteTurn) {
+    if (!LegalMovesLeft("black")) stalemate = true;
+  } else if (!wCheck && isWhiteTurn) {
+    if (!LegalMovesLeft("white")) stalemate = true;
   }
   if (whiteWinCheck) {
     centerText.textContent = "White Wins";
     win.classList.remove("invisible");
     // win.style.fontSize = "2rem";
     overlay.classList.remove("invisible");
-  }
-  else if (blackWinCheck) {
+    scoreWhite++;
+    document.querySelector(".score-white").textContent = `White: ${scoreWhite}`;
+  } else if (blackWinCheck) {
     centerText.textContent = "Black Wins";
     win.classList.remove("invisible");
     // win.style.fontSize = "2rem";
     overlay.classList.remove("invisible");
-  }
-  else if (stalemate){
+    scoreBlack++;
+    document.querySelector(".score-black").textContent = `Black: ${scoreBlack}`;
+  } else if (stalemate) {
     centerText.textContent = "Stalemate! No winner.";
     win.classList.remove("invisible");
     // win.style.fontSize = "1.5rem";
@@ -981,6 +981,7 @@ function Reset() {
   showToMoveText(isWhiteTurn);
   wCheck = false;
   bCheck = false;
+  saveSituationToHistory();
 }
 //#endregion
 //////////////////////////////////////////////////

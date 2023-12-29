@@ -54,8 +54,8 @@ article {
   border-collapse: collapse;
   padding: 0;
   margin: 0;
-  width: 90vh;
-  height: 90vh;
+  width: 95vh;
+  height: 95vh;
 }
 .chessboard td {
   width: 12.5%;
@@ -132,7 +132,7 @@ article {
   background-color: rgba(0, 0, 0, 0.6);
   -webkit-backdrop-filter: blur(3px);
   backdrop-filter: blur(3px);
-  z-index: 5;
+  z-index: 8;
 }
 .close {
   position: absolute;
@@ -166,7 +166,7 @@ article {
   border: none;
   background: none;
   box-shadow: 1px 1px 0px black;
-  z-index: 10;
+  z-index: 7;
 }
 .turn{
   display: inline;
@@ -182,7 +182,7 @@ article {
 }
 .colors {
   position: relative;
-  right: 56rem;
+  right: 59rem;
   top: -28rem;
   margin-top: 5rem;
   font-size: 2rem;
@@ -295,6 +295,7 @@ article {
 
 @media screen and (max-width: 700px) {
   .chessboard {
+    margin-top: 0.5rem;
     width: 100vw;
     height: 100vw;
   }
@@ -311,21 +312,21 @@ article {
   .turn {
     position: relative;
     top: -4rem;
-    left: -7rem;
+    left: -7.5rem;
   }
   .score-white{
     position:absolute;
-    top: 9.5rem;
+    top: 13rem;
     right: 1rem;
   }
   .score-black{
     position:absolute;
-    top: 13.5rem;
+    top: 16.5rem;
     right: 1rem;  
   }
   .player-2 {
     position: relative;
-    top: -1.5rem;
+    top: -3rem;
     left: 0.5rem;
   }
   .colors {
