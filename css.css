@@ -181,10 +181,9 @@ article {
   top: 14rem;
 }
 .colors {
-  position: relative;
-  right: 59rem;
-  top: -28rem;
-  margin-top: 5rem;
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
   font-size: 2rem;
   color: var(--color-button);
 }
